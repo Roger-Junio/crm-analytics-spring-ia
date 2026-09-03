@@ -1,0 +1,11 @@
+nome;email;cidade;estado;quantidade_compras;valor_total_compras;ultima_compra
+Ana Silva;ana.silva@email.com;Ipatinga;MG;8;4000;2026-08-10
+João Santos;joao.santos@email.com;Timóteo;MG;3;900;2026-08-05
+Mariana Oliveira;mariana.oliveira@email.com;Coronel Fabriciano;MG;12;6180;2026-08-22
+Carlos Souza;carlos.souza@email.com;Ipatinga;MG;5;1250;2026-07-30
+Fernanda Costa;fernanda.costa@email.com;Santana do Paraíso;MG;10;3500;2026-08-18
+Lucas Pereira;lucas.pereira@email.com;Caratinga;MG;2;180;2026-06-15
+Beatriz Almeida;beatriz.almeida@email.com;Ipatinga;MG;15;8250;2026-08-24
+Rafael Martins;rafael.martins@email.com;Timóteo;MG;7;2100;2026-07-12
+Juliana Rocha;juliana.rocha@email.com;Coronel Fabriciano;MG;4;760;2026-08-01
+Pedro Ferreira;pedro.ferreira@email.com;Ipatinga;MG;9;3150;2026-08-20
