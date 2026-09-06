@@ -1,5 +1,6 @@
 package com.example.api_crm.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -17,6 +18,9 @@ public class Cliente {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true, nullable = false)
+    private String matricula;
+
     private String nome;
     private String email;
     private String cidade;
@@ -29,6 +33,11 @@ public class Cliente {
 
     public void setId(Long id) {this.id = id; }
         public Long getId() {return id;}
+
+    public void setMatricula(String matricula) {this.matricula = matricula;}
+        public String getMatricula() {return matricula;}       
+
+
 
     public void setNome(String nome) {this.nome = nome; }
         public String getNome() {return nome;}
