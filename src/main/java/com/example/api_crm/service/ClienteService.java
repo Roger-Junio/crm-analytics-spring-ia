@@ -1,5 +1,6 @@
 package com.example.api_crm.service;
 
+import com.example.api_crm.dto.ClienteAnaliseDTO;
 import com.example.api_crm.model.Cliente;
 import com.example.api_crm.repository.ClienteRepository;
 
@@ -9,6 +10,8 @@ import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -89,10 +92,7 @@ public class ClienteService {
 
               Cliente cliente = new  Cliente(); 
 
-              cliente.setNome(nome);
-              cliente.setEmail(email);
-              cliente.setCidade(cidade);
-              cliente.setEstado(estado);
+          
               cliente.setQuantidadeCompras(quantidadeCompras);
               cliente.setValorTotalCompras(valorTotalCompras);
               cliente.setUltimaCompra(ultimaCompra);
@@ -104,6 +104,41 @@ public class ClienteService {
 
         }
   }
+
+  //ANALISE DADOS DO DTO
+  public ClienteAnaliseDTO analisarCliente(Cliente cliente) {
+
+    BigDecimal ticket = ticketMedioCliente(cliente);
+    Long dias = diasDesdeUltimaCompra(cliente);
+    String classificacao = classificarCliente(cliente);
+
+    return new ClienteAnaliseDTO(
+        cliente.getNome(),
+        ticket,
+        dias,
+        classificacao
+    );
+
+  }       
+  //RETORNO DTO 
+        public ClienteAnaliseDTO analisarClientePorID(Long id){
+         var cliente = clienteRepository.findById(id).orElseThrow();
+          return analisarCliente(cliente);
+         } 
+
+  //RETORNO DTO BUSCA TODOS CLIENTES 
+  public List<ClienteAnaliseDTO> analisarTodosOsClientes() {
+    
+          var clientes = clienteRepository.findAll();
+          List<ClienteAnaliseDTO> analises = new ArrayList<>();
+
+        for (Cliente cliente : clientes) {
+          analises.add(analisarCliente(cliente));
+        }
+    
+          return analises;
+        }
+  
 }
 
   

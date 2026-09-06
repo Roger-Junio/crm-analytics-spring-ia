@@ -12,12 +12,11 @@ public class ClienteAnaliseDTO {
     private String classificacao;
 
 
-   public ClienteAnaliseDTO(String nome, BigDecimal ticketMedio, Long diasSemComprar, String classificacao) {
-
-    this.nome = nome;
-    this.ticketMedio = ticketMedio;
-    this.diasSemComprar = diasSemComprar;
-    this.classificacao = classificacao;
+    public ClienteAnaliseDTO(String nome, BigDecimal ticketMedio, Long diasSemComprar, String classificacao) {
+        this.nome = nome;
+        this.ticketMedio = ticketMedio;
+        this.diasSemComprar = diasSemComprar;
+        this.classificacao = classificacao;
     }
 
     public String getNome() {return nome;}

@@ -1,6 +1,7 @@
 package com.example.api_crm.controller;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.example.api_crm.dto.ClienteAnaliseDTO;
 import com.example.api_crm.model.Cliente;
 import com.example.api_crm.service.ClienteService;
 
@@ -39,5 +41,17 @@ public class ClienteController {
         return clienteService.diasSemComprar(id);
     }
 
+    //TESTE DTO
+    @GetMapping("/{id}/id-cliente")
+    public ClienteAnaliseDTO dadosTest(@PathVariable Long id) {
+        return clienteService.analisarClientePorID(id);
+    }
+
+    //TESTE BUSCA TODOS OS CLIENTES
+    @GetMapping("full-clientes")
+    public List<ClienteAnaliseDTO> fullCliente() {
+    return clienteService.analisarTodosOsClientes();
+    }  
+    
    
 }
