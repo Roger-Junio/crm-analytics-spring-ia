@@ -1,5 +1,7 @@
 package com.example.api_crm.repository;
 
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -10,7 +12,7 @@ import com.example.api_crm.model.Cliente;
 public interface ClienteRepository extends JpaRepository<Cliente, Long> {
     
 
-    
+    Optional<Cliente> findByMatricula(String matricula);
 
 
 }

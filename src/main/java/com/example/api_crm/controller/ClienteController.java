@@ -41,17 +41,7 @@ public class ClienteController {
         return clienteService.diasSemComprar(id);
     }
 
-    //TESTE DTO
-    @GetMapping("/{id}/id-cliente")
-    public ClienteAnaliseDTO dadosTest(@PathVariable Long id) {
-        return clienteService.analisarClientePorID(id);
-    }
-
-    //TESTE BUSCA TODOS OS CLIENTES
-    @GetMapping("full-clientes")
-    public List<ClienteAnaliseDTO> fullCliente() {
-    return clienteService.analisarTodosOsClientes();
-    }  
+    
     
    
 }

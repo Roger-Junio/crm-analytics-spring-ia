@@ -21,7 +21,7 @@ public class Arquivo {
         public String getNome() {return nome;}
 
     public void setDataUpload(LocalDate dataUpload) {this.dataUpload = dataUpload;}
-        public LocalDate geLocalDate() {return dataUpload;}
+        public LocalDate getDataUpload() {return dataUpload;}
 
 
 }

@@ -28,7 +28,6 @@ public class HistoricoCliente {
 
     private int quantidadeCompras;
     private BigDecimal valorTotalCompras;
-
     private BigDecimal ticketMedio;
     private LocalDate ultimaCompra;
 

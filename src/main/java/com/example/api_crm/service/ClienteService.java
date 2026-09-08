@@ -1,17 +1,21 @@
 package com.example.api_crm.service;
 
 import com.example.api_crm.dto.ClienteAnaliseDTO;
+import com.example.api_crm.model.Arquivo;
 import com.example.api_crm.model.Cliente;
+import com.example.api_crm.model.HistoricoCliente;
+import com.example.api_crm.repository.ArquivoClienteRepository;
 import com.example.api_crm.repository.ClienteRepository;
+import com.example.api_crm.repository.HistoricoClienteRepository;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,137 +23,167 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 public class ClienteService {
 
-  private final ClienteRepository clienteRepository; 
+    private final ClienteRepository clienteRepository;
+    private final HistoricoClienteRepository historicoClienteRepository;
+    private final ArquivoClienteRepository arquivoClienteRepository;
 
-    public ClienteService(ClienteRepository clienteRepository) {
-      this.clienteRepository = clienteRepository;
+    public ClienteService(
+            ClienteRepository clienteRepository,
+            HistoricoClienteRepository historicoClienteRepository,
+            ArquivoClienteRepository arquivoClienteRepository) {
+
+        this.clienteRepository = clienteRepository;
+        this.historicoClienteRepository = historicoClienteRepository;
+        this.arquivoClienteRepository = arquivoClienteRepository;
     }
-      
-    //CALCULA AUTOMATICAMENTE O TICK MEDIO DO CLIENTE, E SALVA JUNTO AO ID NO BANCO 
-    public BigDecimal ticketMedioCliente(Cliente cliente) {
-      var quantidadeCompras = cliente.getQuantidadeCompras();
-      var valorTotalCompras = cliente.getValorTotalCompras();
+
+
     
-          if (quantidadeCompras == 0) {
-            return BigDecimal.ZERO;
+        //calcula o ticket medio
+        public BigDecimal ticketMedioHistorico(HistoricoCliente historicoCliente) {
+
+                var quantidadeCompras = historicoCliente.getQuantidadeCompras();
+                var valorTotalCompras = historicoCliente.getValorTotalCompras();
+
+                        if (quantidadeCompras == 0) {
+                                return BigDecimal.ZERO;
+                        }
+                return valorTotalCompras.divide(
+                BigDecimal.valueOf(quantidadeCompras),
+                2,
+                RoundingMode.HALF_UP
+                );
         }
-      var ticketMedio = valorTotalCompras.divide(
-        BigDecimal.valueOf(quantidadeCompras)
-      );
-      return ticketMedio; 
-  }
+   
+        // CALCULA QUANTOS DIAS DESDE A ÚLTIMA COMPRA
+        public Long diasDesdeUltimaCompra(HistoricoCliente historicoCliente) {
 
-    //AQUI TRAS O DADO DO DIA DA ULTIMA COMPRA É O DIA DE HOJE  "COMP 1/2"
-    public Long diasDesdeUltimaCompra(Cliente cliente) {
-      LocalDate hoje = LocalDate.now();
-      LocalDate ultimaCompra = cliente.getUltimaCompra();
-        return ChronoUnit.DAYS.between(ultimaCompra, hoje);
-    }            
-      //AQUI UTILIZA O DADO DO "COMP 1/2" PARA RESULTA E TRASER A QUANTIDADE DE DIA SEM COMPRA "COMP 2/2"
-      public Long diasSemComprar(Long id) {      
-                    var resultado = clienteRepository.findById(id).orElseThrow();
-                    return diasDesdeUltimaCompra(resultado);
-                }
+                LocalDate hoje = LocalDate.now();
+                LocalDate ultimaCompra = historicoCliente.getUltimaCompra();
 
-    //STATUS DO CLIENTE      
-    public String classificarCliente(Cliente cliente) {
-                
-                  long dias = diasDesdeUltimaCompra(cliente);
-                  
-                  if (dias <= 30) {
-                    return "Ativo";
+                return ChronoUnit.DAYS.between(ultimaCompra, hoje);
+        }
+   
+        // BUSCA QUANTOS DIAS O CLIENTE ESTÁ SEM COMPRAR
+        public Long diasSemComprar(Long id) {
 
-                  } else if (dias <= 60) {        
-                    return "Atenção";
+                var resultado = historicoClienteRepository
+                        .findById(id)
+                        .orElseThrow();
 
-                  } else {        
-                    return "Em risco";
-
-                  }
-
-              }
-
-
-  public void importarArquivo(MultipartFile arquivo) throws IOException {
-    //BufferedReader utilizado para leitura do arquivo 
-    //InputStreamReader utliza para transforma byst em char para melhor utilizar 
-    BufferedReader reader = new BufferedReader( new InputStreamReader(arquivo.getInputStream()));
-
-          String linha;
-          reader.readLine(); //pula o cabeçalho do arquivo csv
-        while ((linha = reader.readLine()) != null) {
-  
-          String[] colunas = linha.split(";");
+                return diasDesdeUltimaCompra(resultado);
+        }
     
-              String nome = colunas[0];
-              String email = colunas[1];
-              String cidade = colunas[2];
-              String estado = colunas[3]; 
-              
-              int quantidadeCompras = Integer.parseInt(colunas[4]);
-              BigDecimal valorTotalCompras = new BigDecimal(colunas[5]);
-              LocalDate ultimaCompra = LocalDate.parse(colunas[6]);
+        //CLASIFICAÇÃO DO CLIENTE
+        public String classificarCliente(HistoricoCliente historicoCliente) {
 
-              Cliente cliente = new  Cliente(); 
+                long dias = diasDesdeUltimaCompra(historicoCliente);
 
-          
-              cliente.setQuantidadeCompras(quantidadeCompras);
-              cliente.setValorTotalCompras(valorTotalCompras);
-              cliente.setUltimaCompra(ultimaCompra);
-              
-              cliente.setTicketMedio(ticketMedioCliente(cliente));
+                if (dias <= 30) {
+                return "Ativo";
 
+                } else if (dias <= 60) {
+                return "Atenção";
+
+                } else {
+                return "Em risco";
+                }
+        }
+
+
+        //IMPORTA ARQUIVO CSV
+        public void importarArquivo(MultipartFile arquivo) throws IOException {
+        //BufferedReader utilizado para leitura do arquivo 
+        //InputStreamReader utliza para transforma byst em char para melhor utilizar
+        BufferedReader reader = new BufferedReader(
+                new InputStreamReader(arquivo.getInputStream())
+        );    
+        String linha;
+        reader.readLine();
+
+                //SALVANDO NA TABELA ARQUIVO, O NOME DO ARQUIVO E A DATA DO UPLOAD
+                Arquivo arquivoImportado = new Arquivo();
+                arquivoImportado.setNome(arquivo.getOriginalFilename());
+                arquivoImportado.setDataUpload(LocalDate.now());
+                        arquivoClienteRepository.save(arquivoImportado);
+
+
+        while ((linha = reader.readLine()) != null) {
+
+            String[] colunas = linha.split(";");
+
+                String matricula = colunas[0];
+                String nome = colunas[1];
+                String email = colunas[2];
+                String cidade = colunas[3];
+                String estado = colunas[4];
+
+
+            //DADOS DO HISTORICO
+            int quantidadeCompras = Integer.parseInt(colunas[5]);
+            BigDecimal valorTotalCompras = new BigDecimal(colunas[6]);
+            LocalDate ultimaCompra = LocalDate.parse(colunas[7]);
+
+            //PROCURA CLIENTE PELA MATRICULA    
+            Optional<Cliente> clienteExistente =
+                    clienteRepository.findByMatricula(matricula);
+
+            Cliente cliente;
+
+            // IF CLIENTE JÁ EXISTE
+            // Pegamos o cliente existente e atualizamos
+            // seus dados cadastrais caso tenham mudado.      
+            if (clienteExistente.isPresent()) {
+
+                cliente = clienteExistente.get();
+
+                cliente.setNome(nome);
+                cliente.setEmail(email);
+                cliente.setCidade(cidade);
+                cliente.setEstado(estado);
 
                 clienteRepository.save(cliente);
+            }
+      
+            // CLIENTE NÃO EXISTE
+            // Criamos um novo Cliente utilizando a matrícula como identificador do cliente.          
+            else {
 
+                cliente = new Cliente();
+
+                cliente.setMatricula(matricula);
+                cliente.setNome(nome);
+                cliente.setEmail(email);
+                cliente.setCidade(cidade);
+                cliente.setEstado(estado);
+
+                clienteRepository.save(cliente);
+            }
+
+
+            // CRIA O HISTÓRICO DO CLIENTE
+            // ====================================================
+            // alteração:
+            // Este bloco ficara FORA do if/else.
+            // Tanto cliente novo e quanto cliente existente
+            // precisam receber um novo histórico referente ao arquivo que acabou de ser importado.
+         
+
+            HistoricoCliente historicoCliente = new HistoricoCliente();
+
+            historicoCliente.setCliente(cliente);
+            historicoCliente.setArquivo(arquivoImportado);
+            historicoCliente.setQuantidadeCompras(quantidadeCompras);
+            historicoCliente.setValorTotalCompras(valorTotalCompras);
+
+            historicoCliente.setUltimaCompra(ultimaCompra);
+
+                // Calcula automaticamente o ticket médio
+                historicoCliente.setTicketMedio(
+                        ticketMedioHistorico(historicoCliente)
+                );
+
+            historicoClienteRepository.save(historicoCliente);
         }
-  }
-
-  //ANALISE DADOS DO DTO
-  public ClienteAnaliseDTO analisarCliente(Cliente cliente) {
-
-    BigDecimal ticket = ticketMedioCliente(cliente);
-    Long dias = diasDesdeUltimaCompra(cliente);
-    String classificacao = classificarCliente(cliente);
-
-    return new ClienteAnaliseDTO(
-        cliente.getNome(),
-        ticket,
-        dias,
-        classificacao
-    );
-
-  }       
-  //RETORNO DTO 
-        public ClienteAnaliseDTO analisarClientePorID(Long id){
-         var cliente = clienteRepository.findById(id).orElseThrow();
-          return analisarCliente(cliente);
-         } 
-
-  //RETORNO DTO BUSCA TODOS CLIENTES 
-  public List<ClienteAnaliseDTO> analisarTodosOsClientes() {
-    
-          var clientes = clienteRepository.findAll();
-          List<ClienteAnaliseDTO> analises = new ArrayList<>();
-
-        for (Cliente cliente : clientes) {
-          analises.add(analisarCliente(cliente));
-        }
-    
-          return analises;
-        }
-  
+    }
 }
-
-  
-
-
-
-
-
-
-
-
-
-
-
