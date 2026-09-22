@@ -1,5 +1,6 @@
 package com.example.api_crm.service;
 
+import com.example.api_crm.dto.AnaliseRequestDTO;
 import com.example.api_crm.dto.ClienteAnaliseDTO;
 import com.example.api_crm.model.Arquivo;
 import com.example.api_crm.model.Cliente;
@@ -15,6 +16,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
@@ -36,8 +38,6 @@ public class ClienteService {
         this.historicoClienteRepository = historicoClienteRepository;
         this.arquivoClienteRepository = arquivoClienteRepository;
     }
-
-
     
         //calcula o ticket medio
         public BigDecimal ticketMedioHistorico(HistoricoCliente historicoCliente) {
@@ -48,6 +48,7 @@ public class ClienteService {
                         if (quantidadeCompras == 0) {
                                 return BigDecimal.ZERO;
                         }
+                        
                 return valorTotalCompras.divide(
                 BigDecimal.valueOf(quantidadeCompras),
                 2,
@@ -67,10 +68,7 @@ public class ClienteService {
         // BUSCA QUANTOS DIAS O CLIENTE ESTÁ SEM COMPRAR
         public Long diasSemComprar(Long id) {
 
-                var resultado = historicoClienteRepository
-                        .findById(id)
-                        .orElseThrow();
-
+                var resultado = historicoClienteRepository.findById(id).orElseThrow();
                 return diasDesdeUltimaCompra(resultado);
         }
     
@@ -90,14 +88,10 @@ public class ClienteService {
                 }
         }
 
-
         //IMPORTA ARQUIVO CSV
-        public void importarArquivo(MultipartFile arquivo) throws IOException {
-        //BufferedReader utilizado para leitura do arquivo 
-        //InputStreamReader utliza para transforma byst em char para melhor utilizar
-        BufferedReader reader = new BufferedReader(
-                new InputStreamReader(arquivo.getInputStream())
-        );    
+        public void importarArquivo(MultipartFile arquivo) throws IOException {      
+        //BufferedReader utilizado para leitura do arquivo //InputStreamReader utliza para transforma byst em char para melhor utilizar
+        BufferedReader reader = new BufferedReader( new InputStreamReader(arquivo.getInputStream()));    
         String linha;
         reader.readLine();
 
@@ -186,4 +180,84 @@ public class ClienteService {
             historicoClienteRepository.save(historicoCliente);
         }
     }
+     
+        public List<HistoricoCliente> dadosArquivoHistoricoCliente(Long id) {
+
+                var resultadoHistoricoId = historicoClienteRepository.findByClienteId(id);
+                return resultadoHistoricoId; 
+        }
+       
+      
+
+
+        public ClienteAnaliseDTO consolidarHistorico(List<HistoricoCliente> historicos) {
+
+        LocalDate hoje = LocalDate.now();
+        LocalDate ultimaCompraConsolidada = null;
+
+        int quantidadeComprasConsolidada = 0;
+        BigDecimal valorTotalComprasConsolidada = BigDecimal.ZERO;
+
+                // esse for é a mágica completa
+                for (HistoricoCliente historico : historicos) {
+
+                        quantidadeComprasConsolidada =
+                        quantidadeComprasConsolidada + historico.getQuantidadeCompras();
+
+                        valorTotalComprasConsolidada =
+                        valorTotalComprasConsolidada.add(
+                                historico.getValorTotalCompras()
+                        );
+
+                        LocalDate ultimaCompra = historico.getUltimaCompra();
+
+                        if (ultimaCompraConsolidada == null) {
+                        ultimaCompraConsolidada = ultimaCompra;
+
+                        } else if (ultimaCompra.isAfter(ultimaCompraConsolidada)) {
+                        ultimaCompraConsolidada = ultimaCompra;
+                        };
+                }
+        
+                        // Calcula o ticket médio considerando todo o histórico
+                        BigDecimal ticketMedioConsolidado =
+                                valorTotalComprasConsolidada.divide(
+                                        BigDecimal.valueOf(quantidadeComprasConsolidada),
+                                        2,
+                                        RoundingMode.HALF_UP
+                                );
+
+                        // Calcula quantos dias se passaram desde a última compra
+                        Long diasSemComprar =
+                                ChronoUnit.DAYS.between(
+                                        ultimaCompraConsolidada,
+                                        hoje
+                                );
+
+                        String classificacao; 
+                        if (diasSemComprar <= 30) {
+                                classificacao = "Ativo";
+                        }   else if (diasSemComprar <= 60) {
+                                classificacao = "Atencao";
+                        }   else {
+                                classificacao = "Em risco"; 
+                        }
+
+                        return new ClienteAnaliseDTO(
+                                historicos.get(0).getCliente().getNome(),
+                                ticketMedioConsolidado,
+                                diasSemComprar,
+                                classificacao
+                        );
+
+        
+        }
 }
+        
+
+
+
+
+
+
+               
