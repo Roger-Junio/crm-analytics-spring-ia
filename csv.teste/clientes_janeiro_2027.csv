@@ -1,0 +1,15 @@
+matricula;nome;email;cidade;estado;quantidade_compras;valor_total_compras;ultima_compra
+CLI001;João Silva;joao@email.com;Ipatinga;MG;6;2100.00;2027-01-15
+CLI002;Maria Souza;maria@email.com;Ipatinga;MG;9;4050.00;2027-01-25
+CLI003;Carlos Oliveira;carlos@email.com;Timóteo;MG;4;1400.00;2026-12-08
+CLI004;Ana Costa;ana@email.com;Coronel Fabriciano;MG;8;4400.00;2027-01-28
+CLI005;Pedro Santos;pedro@email.com;Ipatinga;MG;1;400.00;2026-11-30
+CLI006;Lucas Almeida;lucas@email.com;Ipatinga;MG;5;1900.00;2027-01-18
+CLI007;Juliana Lima;juliana@email.com;Timóteo;MG;3;1200.00;2026-12-20
+CLI008;Rafael Costa;rafael@email.com;Ipatinga;MG;7;2800.00;2027-01-22
+CLI009;Fernanda Alves;fernanda@email.com;Coronel Fabriciano;MG;2;800.00;2026-12-15
+CLI010;Bruno Martins;bruno@email.com;Ipatinga;MG;10;4500.00;2027-01-30
+CLI011;Camila Rocha;camila@email.com;Ipatinga;MG;7;2800.00;2027-01-20
+CLI012;Gustavo Pereira;gustavo@email.com;Timóteo;MG;3;1200.00;2027-01-10
+CLI013;Larissa Mendes;larissa@email.com;Ipatinga;MG;5;2000.00;2027-01-26
+CLI014;Diego Ferreira;diego@email.com;Coronel Fabriciano;MG;2;700.00;2027-01-05

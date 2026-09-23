@@ -190,68 +190,81 @@ public class ClienteService {
       
 
 
-        public ClienteAnaliseDTO consolidarHistorico(List<HistoricoCliente> historicos) {
+        //buscarDadosConsolidados() → busca os dados___________________________________________________________________________________________
+        //consolidarHistorico() → processa/análise os dados
 
-        LocalDate hoje = LocalDate.now();
-        LocalDate ultimaCompraConsolidada = null;
+                public ClienteAnaliseDTO buscarDadosConsolidados(Long id) {
+                        List<HistoricoCliente> historico = historicoClienteRepository.findByClienteId(id);
+                        return consolidarHistorico(historico);
+                }
 
-        int quantidadeComprasConsolidada = 0;
-        BigDecimal valorTotalComprasConsolidada = BigDecimal.ZERO;
+                public ClienteAnaliseDTO consolidarHistorico(List<HistoricoCliente> historicos) {
 
-                // esse for é a mágica completa
-                for (HistoricoCliente historico : historicos) {
+                LocalDate hoje = LocalDate.now();
+                LocalDate ultimaCompraConsolidada = null;
 
-                        quantidadeComprasConsolidada =
-                        quantidadeComprasConsolidada + historico.getQuantidadeCompras();
+                int quantidadeComprasConsolidada = 0;
+                BigDecimal valorTotalComprasConsolidada = BigDecimal.ZERO;
 
-                        valorTotalComprasConsolidada =
-                        valorTotalComprasConsolidada.add(
-                                historico.getValorTotalCompras()
-                        );
+                        // esse for é a mágica completa
+                        for (HistoricoCliente historico : historicos) {
 
-                        LocalDate ultimaCompra = historico.getUltimaCompra();
+                                quantidadeComprasConsolidada =
+                                quantidadeComprasConsolidada + historico.getQuantidadeCompras();
 
-                        if (ultimaCompraConsolidada == null) {
-                        ultimaCompraConsolidada = ultimaCompra;
+                                valorTotalComprasConsolidada =
+                                valorTotalComprasConsolidada.add(
+                                        historico.getValorTotalCompras()
+                                );
 
-                        } else if (ultimaCompra.isAfter(ultimaCompraConsolidada)) {
-                        ultimaCompraConsolidada = ultimaCompra;
-                        };
+                                LocalDate ultimaCompra = historico.getUltimaCompra();
+
+                                if (ultimaCompraConsolidada == null) {
+                                ultimaCompraConsolidada = ultimaCompra;
+
+                                } else if (ultimaCompra.isAfter(ultimaCompraConsolidada)) {
+                                ultimaCompraConsolidada = ultimaCompra;
+                                }
+                        }
+                
+                                // Calcula o ticket médio considerando todo o histórico
+                                BigDecimal ticketMedioConsolidado =
+                                        valorTotalComprasConsolidada.divide(
+                                                BigDecimal.valueOf(quantidadeComprasConsolidada),
+                                                2,
+                                                RoundingMode.HALF_UP
+                                        );
+
+                                // Calcula quantos dias se passaram desde a última compra
+                                Long diasSemComprar =
+                                        ChronoUnit.DAYS.between(
+                                                ultimaCompraConsolidada,
+                                                hoje
+                                        );
+
+                                String classificacao; 
+                                if (diasSemComprar <= 30) {
+                                        classificacao = "Ativo";
+                                }   else if (diasSemComprar <= 60) {
+                                        classificacao = "Atencao";
+                                }   else {
+                                        classificacao = "Em risco"; 
+                                }
+
+                                return new ClienteAnaliseDTO(
+                                        historicos.get(0).getCliente().getNome(),
+                                        ticketMedioConsolidado,
+                                        diasSemComprar,
+                                        classificacao
+                                );
+
+                
                 }
         
-                        // Calcula o ticket médio considerando todo o histórico
-                        BigDecimal ticketMedioConsolidado =
-                                valorTotalComprasConsolidada.divide(
-                                        BigDecimal.valueOf(quantidadeComprasConsolidada),
-                                        2,
-                                        RoundingMode.HALF_UP
-                                );
+         //________________________________________________________________________________________________________________________________________
 
-                        // Calcula quantos dias se passaram desde a última compra
-                        Long diasSemComprar =
-                                ChronoUnit.DAYS.between(
-                                        ultimaCompraConsolidada,
-                                        hoje
-                                );
 
-                        String classificacao; 
-                        if (diasSemComprar <= 30) {
-                                classificacao = "Ativo";
-                        }   else if (diasSemComprar <= 60) {
-                                classificacao = "Atencao";
-                        }   else {
-                                classificacao = "Em risco"; 
-                        }
 
-                        return new ClienteAnaliseDTO(
-                                historicos.get(0).getCliente().getNome(),
-                                ticketMedioConsolidado,
-                                diasSemComprar,
-                                classificacao
-                        );
-
-        
-        }
 }
         
 

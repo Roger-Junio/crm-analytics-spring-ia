@@ -47,6 +47,12 @@ public class ClienteController {
     public List<HistoricoCliente> getMethodName(@PathVariable Long id) {
         return clienteService.dadosArquivoHistoricoCliente(id);
     }
+
+    @GetMapping("/{id}/buscando-dados-consolidados")
+    public ClienteAnaliseDTO buscarDadosConsolidadosDTO(@PathVariable Long id) {
+        return clienteService.buscarDadosConsolidados(id);
+        
+    }
     
 
     
