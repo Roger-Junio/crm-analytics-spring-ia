@@ -16,7 +16,10 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
@@ -87,6 +90,9 @@ public class ClienteService {
                 return "Em risco";
                 }
         }
+
+
+
 
         //IMPORTA ARQUIVO CSV
         public void importarArquivo(MultipartFile arquivo) throws IOException {      
@@ -187,7 +193,26 @@ public class ClienteService {
                 return resultadoHistoricoId; 
         }
        
-      
+
+
+        public Map<Long, List<HistoricoCliente>> agruparHistoricosPorCliente(List<HistoricoCliente> historicos) {
+                
+                Map<Long, List<HistoricoCliente>> historicosPorCliente = new HashMap<>();
+
+                for (HistoricoCliente historico : historicos) {
+                        Long clienteId = historico.getCliente().getId();
+
+                        if (historicosPorCliente.containsKey(clienteId)) {
+                                historicosPorCliente.get(clienteId).add(historico);     
+                        } else {
+                               List<HistoricoCliente> lista = new ArrayList<>();
+                               lista.add(historico);
+                               historicosPorCliente.put(clienteId, lista);
+                        }
+                }  
+                
+                return historicosPorCliente;
+        }
 
 
         //buscarDadosConsolidados() → busca os dados___________________________________________________________________________________________
@@ -258,12 +283,36 @@ public class ClienteService {
                                         classificacao
                                 );
 
+                                
+
                 
                 }
         
          //________________________________________________________________________________________________________________________________________
 
+                
+         //Método orquestrador
+         public List<ClienteAnaliseDTO> buscarClientesEmRisco(AnaliseRequestDTO request) {
 
+                List<ClienteAnaliseDTO> resultados = new ArrayList<>();
+                List<HistoricoCliente> historicos = historicoClienteRepository.findByArquivoIdIn(request.getArquivos());
+
+                Map<Long, List<HistoricoCliente>> historicosPorCliente = agruparHistoricosPorCliente(historicos);
+
+                for (Map.Entry<Long, List<HistoricoCliente>> entrada : historicosPorCliente.entrySet()) {
+
+                        ClienteAnaliseDTO resultado = consolidarHistorico(entrada.getValue());
+
+                        if (resultado.getClassificacao().equals("Em risco")) {
+                        resultados.add(resultado);
+                        }
+                }
+
+                        return resultados;
+                }
+
+
+                
 
 }
         

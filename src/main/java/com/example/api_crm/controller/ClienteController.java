@@ -53,6 +53,11 @@ public class ClienteController {
         return clienteService.buscarDadosConsolidados(id);
         
     }
+
+    @PostMapping("/analise/clientes-em-risco")
+    public List<ClienteAnaliseDTO> buscarClientesEmRisco(@RequestBody AnaliseRequestDTO request) {
+        return clienteService.buscarClientesEmRisco(request);
+    }
     
 
     
