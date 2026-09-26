@@ -18,6 +18,7 @@ import com.example.api_crm.dto.ClienteAnaliseDTO;
 import com.example.api_crm.model.Cliente;
 import com.example.api_crm.model.HistoricoCliente;
 import com.example.api_crm.service.ClienteService;
+import com.example.api_crm.dto.TopClienteDTO;
 
 @RestController
 @RequestMapping("/clientes")
@@ -57,6 +58,11 @@ public class ClienteController {
     @PostMapping("/analise/clientes-em-risco")
     public List<ClienteAnaliseDTO> buscarClientesEmRisco(@RequestBody AnaliseRequestDTO request) {
         return clienteService.buscarClientesEmRisco(request);
+    }
+
+    @PostMapping("/analise/top-clientes-limite")
+    public List<TopClienteDTO> buscarTopClientesLimite(@RequestBody AnaliseRequestDTO request) {
+    return clienteService.buscarTopClientes(request);
     }
     
 

@@ -2,12 +2,15 @@ package com.example.api_crm.service;
 
 import com.example.api_crm.dto.AnaliseRequestDTO;
 import com.example.api_crm.dto.ClienteAnaliseDTO;
+import com.example.api_crm.dto.TopClienteDTO;
 import com.example.api_crm.model.Arquivo;
 import com.example.api_crm.model.Cliente;
 import com.example.api_crm.model.HistoricoCliente;
 import com.example.api_crm.repository.ArquivoClienteRepository;
 import com.example.api_crm.repository.ClienteRepository;
 import com.example.api_crm.repository.HistoricoClienteRepository;
+
+
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -17,6 +20,7 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -290,7 +294,7 @@ public class ClienteService {
         
          //________________________________________________________________________________________________________________________________________
 
-                
+                //falaremos desse codigo no obisidiann  ____________________--------------------------098777777777777777777777777777777777777777777tyyo9767
          //Método orquestrador
          public List<ClienteAnaliseDTO> buscarClientesEmRisco(AnaliseRequestDTO request) {
 
@@ -311,6 +315,98 @@ public class ClienteService {
                         return resultados;
                 }
 
+
+
+
+
+                //NÃO ENTENDI AINDAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+                //NÃO ENTENDI AINDAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+
+                //NÃO ENTENDI AINDAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//NÃO ENTENDI AINDAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+                //NÃO ENTENDI AINDAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+                //NÃO ENTENDI AINDAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+                //NÃO ENTENDI AINDAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+                public List<TopClienteDTO> buscarTopClientes(AnaliseRequestDTO request) {
+                                
+                        List<HistoricoCliente> historicos = historicoClienteRepository.findByArquivoIdIn(request.getArquivos());               
+                        Map<Long, List<HistoricoCliente>> historicosPorCliente = agruparHistoricosPorCliente(historicos);
+                        Map<Long, Integer> comprasPorCliente = new HashMap<>();
+                        
+                        
+
+                        for (Map.Entry<Long, List<HistoricoCliente>> entrada : historicosPorCliente.entrySet()) {
+                                Long clienteId = entrada.getKey();
+                                
+                                List<HistoricoCliente> historicosCliente = entrada.getValue();
+
+                                int quantidadeComprasTotal = 0;
+
+                                        for (HistoricoCliente historico : historicosCliente) {
+                                                quantidadeComprasTotal = quantidadeComprasTotal + historico.getQuantidadeCompras();
+                                        }
+
+                                        
+                                        comprasPorCliente.put( clienteId, quantidadeComprasTotal);
+                        } 
+
+                        List<Map.Entry<Long, Integer>> ranking = new ArrayList<>(comprasPorCliente.entrySet());
+
+                        int maiorQuantidade = 0;
+                        Long clienteMaior = null;
+
+                        //buscando o maior valor
+                        for (Map.Entry<Long, Integer> entrada : comprasPorCliente.entrySet()) {
+
+                                Long clienteId = entrada.getKey();
+                                Integer quantidadeCompras = entrada.getValue();
+                                
+                                if (quantidadeCompras > maiorQuantidade) {
+                                        maiorQuantidade = quantidadeCompras;
+                                        clienteMaior = clienteId;
+                                }
+  
+                        }
+                        
+                        ranking.sort(Map.Entry.comparingByValue(Comparator.reverseOrder()));
+                        List<Map.Entry<Long, Integer>> rankingLimitado = ranking.stream().limit(request.getLimite()).toList();;
+                        
+                        List<TopClienteDTO> resultados = new ArrayList<>();
+                        
+                                for (Map.Entry<Long, Integer> entrada : rankingLimitado) {
+
+                                        Long clienteId = entrada.getKey();
+                                        Integer quantidadeCompras = entrada.getValue();
+
+                                        List<HistoricoCliente> historicoCliente = historicosPorCliente.get(clienteId); 
+
+                                        BigDecimal valorTotalCompras = BigDecimal.ZERO; 
+
+                                                for (HistoricoCliente historico : historicoCliente) {
+                                                       valorTotalCompras  = valorTotalCompras.add(historico.getValorTotalCompras());
+                                                }
+                                                
+                                                BigDecimal ticketMedio = valorTotalCompras.divide(BigDecimal.valueOf(quantidadeCompras),2,
+                                        RoundingMode.HALF_UP);
+
+                                        Cliente cliente = historicoCliente.get(0).getCliente();
+
+                                        TopClienteDTO resultado = new TopClienteDTO(
+                                                cliente.getMatricula(),
+                                                cliente.getNome(),
+                                                cliente.getEmail(),
+                                                quantidadeCompras,
+                                                valorTotalCompras,
+                                                ticketMedio
+                                        );
+
+                                        resultados.add(resultado);
+                                }
+
+                                        return resultados;
+                                
+                        
+                        
+                }
 
                 
 
