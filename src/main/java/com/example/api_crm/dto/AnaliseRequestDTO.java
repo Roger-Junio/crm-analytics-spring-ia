@@ -6,6 +6,7 @@ public class AnaliseRequestDTO {
 
     private List<Long> arquivos;
     private Integer limite;  
+   
 
     public void setArquivos(List<Long> arquivos) {this.arquivos = arquivos;}
         public List<Long> getArquivos() {return arquivos;}

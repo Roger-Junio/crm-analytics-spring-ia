@@ -3,7 +3,7 @@ package com.example.api_crm.controller;
 import java.io.IOException;
 import java.util.List;
 
-import org.springframework.http.ResponseEntity;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,7 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.example.api_crm.dto.AnaliseRequestDTO;
 import com.example.api_crm.dto.ClienteAnaliseDTO;
-import com.example.api_crm.model.Cliente;
+
 import com.example.api_crm.model.HistoricoCliente;
 import com.example.api_crm.service.ClienteService;
 import com.example.api_crm.dto.TopClienteDTO;
@@ -43,28 +43,39 @@ public class ClienteController {
     public Long buscarTeste(@PathVariable Long id) {
         return clienteService.diasSemComprar(id);
     }   
-
+    //RECEBE UM ID 
     @GetMapping("/{id}/buscando-historico-pelo-id-cliente")
     public List<HistoricoCliente> getMethodName(@PathVariable Long id) {
         return clienteService.dadosArquivoHistoricoCliente(id);
     }
 
+    //RECEBE UM ID 
+    //BUSCA CONSOLIDADA ESPECIFICA DE UM ID CLIENTE
     @GetMapping("/{id}/buscando-dados-consolidados")
     public ClienteAnaliseDTO buscarDadosConsolidadosDTO(@PathVariable Long id) {
         return clienteService.buscarDadosConsolidados(id);
-        
     }
 
+    //RECEBE UM DTO/FILTRO
+    //CLIENTES EM RISCO
     @PostMapping("/analise/clientes-em-risco")
     public List<ClienteAnaliseDTO> buscarClientesEmRisco(@RequestBody AnaliseRequestDTO request) {
         return clienteService.buscarClientesEmRisco(request);
     }
 
+    //RECEBE UM DTO/FILTRO 
+    //TOP CLIENTES QUE + TEVE NUMEROS DE COMPRA
     @PostMapping("/analise/top-clientes-limite")
     public List<TopClienteDTO> buscarTopClientesLimite(@RequestBody AnaliseRequestDTO request) {
     return clienteService.buscarTopClientes(request);
     }
-    
+
+    //RECEBE UM DTO/FILTRO 
+    //TOP CLIENTES QUE + TEVE VALOR COMPRADO 
+    @PostMapping("/analise/top-clientes-limite-valor-comprado")
+    public List<TopClienteDTO> buscarTopClientesLimiteValorComprado(@RequestBody AnaliseRequestDTO request) {
+    return clienteService.buscarTopClientesPorValorComprado(request);
+    }
 
     
 
