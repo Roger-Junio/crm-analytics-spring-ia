@@ -6,6 +6,7 @@ public class AnaliseRequestDTO {
 
     private List<Long> arquivos;
     private Integer limite;  
+    private Integer dias;
    
 
     public void setArquivos(List<Long> arquivos) {this.arquivos = arquivos;}
@@ -13,6 +14,9 @@ public class AnaliseRequestDTO {
 
     public void setLimite(Integer limite) {this.limite = limite;}
         public Integer getLimite() {return limite;}
+
+    public void setDias(Integer dias) {this.dias = dias;}
+        public Integer getDias() {return dias;}    
 
    
 }

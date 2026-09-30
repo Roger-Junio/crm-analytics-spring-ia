@@ -2,6 +2,7 @@ package com.example.api_crm.service;
 
 import com.example.api_crm.dto.AnaliseRequestDTO;
 import com.example.api_crm.dto.ClienteAnaliseDTO;
+import com.example.api_crm.dto.ClientesSemCompraDTO;
 import com.example.api_crm.dto.TopClienteDTO;
 import com.example.api_crm.model.Arquivo;
 import com.example.api_crm.model.Cliente;
@@ -283,8 +284,8 @@ public class ClienteService {
                                 );      
                 }//________________________________________________________________________________________________________________________________________
         
-        //CLIENTES EM RISCO 
-        public List<ClienteAnaliseDTO> buscarClientesEmRisco(AnaliseRequestDTO request) { //________________________________________________________________________________________________________________________________________
+        //CLIENTES EM RISCO______________________________________________________________________________________________________________________________________________________
+        public List<ClienteAnaliseDTO> buscarClientesEmRisco(AnaliseRequestDTO request) {
 
                 List<ClienteAnaliseDTO> resultados = new ArrayList<>();
                 List<HistoricoCliente> historicos = historicoClienteRepository.findByArquivoIdIn(request.getArquivos());
@@ -364,7 +365,8 @@ public class ClienteService {
 
         //TOP CLIENTES QUE + TEVE VALOR COMPRADO _________________________________________________________________________________________________________________________________
         public List<TopClienteDTO> buscarTopClientesPorValorComprado(AnaliseRequestDTO request) {
-                                
+
+                  
                         List<HistoricoCliente> historicos = historicoClienteRepository.findByArquivoIdIn(request.getArquivos());               
                         Map<Long, List<HistoricoCliente>> historicosPorCliente = agruparHistoricosPorCliente(historicos);
                         
@@ -405,7 +407,7 @@ public class ClienteService {
                                                        quantidadeCompras += historico.getQuantidadeCompras();
                                                 }
                                                          
-                                                BigDecimal ticketMedio = valorTotalCompras.divide(BigDecimal.valueOf(quantidadeCompras),2,RoundingMode.HALF_UP);
+                                        BigDecimal ticketMedio = valorTotalCompras.divide(BigDecimal.valueOf(quantidadeCompras),2,RoundingMode.HALF_UP);
 
                                         Cliente cliente = historicoCliente.get(0).getCliente();
 
@@ -423,11 +425,63 @@ public class ClienteService {
                                         return resultados;                
                 }//________________________________________________________________________________________________________________________________________________________
 
+         //TOP CLIENTES X DIAS SEM COMPRAS________________________________________________________________________________________________________________________________________
+        public List<ClientesSemCompraDTO> topClientesSemCompraAXDias(AnaliseRequestDTO request) {
+
+        List<HistoricoCliente> historicos = historicoClienteRepository.findByArquivoIdIn(request.getArquivos());               
+        Map<Long, List<HistoricoCliente>> historicosPorCliente = agruparHistoricosPorCliente(historicos);                 
                 
+        Map<Long, Long> diasTotalSemCompra = new HashMap<>();
+                                    
+                for (Map.Entry<Long, List<HistoricoCliente>> entrada : historicosPorCliente.entrySet()) {
+                                                              
+                                Long clienteId = entrada.getKey();
+                                List<HistoricoCliente> historicoCliente = entrada.getValue();
+                              
+                                LocalDate ultimaCompraTotal = null; 
+                          
+                                for (HistoricoCliente historico : historicoCliente) {
+                                               
+                                               LocalDate ultimaCompra = historico.getUltimaCompra();
 
+                                                 if (ultimaCompraTotal == null) {
+                                                ultimaCompraTotal = ultimaCompra;}
+
+                                                else if (ultimaCompra.isAfter(ultimaCompraTotal)) {
+                                                        ultimaCompraTotal = ultimaCompra;  
+                                                }
+                                }
+                                
+                                diasTotalSemCompra.put(clienteId, ChronoUnit.DAYS.between(ultimaCompraTotal, LocalDate.now()));                        
+                        } 
+                    
+                        List<Map.Entry<Long, Long>> ranking = new ArrayList<>(diasTotalSemCompra.entrySet());             
+                        List<Map.Entry<Long, Long>> rankingLimitadoDias = ranking.stream().filter(entrada -> entrada.getValue() >= request.getDias()).sorted(Map.Entry.comparingByValue(Comparator.reverseOrder())).toList();
+               
+                        List<Map.Entry<Long, Long>> rankingLimitado = rankingLimitadoDias.stream().limit(request.getLimite()).toList();
+                        
+                        List<ClientesSemCompraDTO> resultados = new ArrayList<>();
+                        
+                                for (Map.Entry<Long, Long> entrada : rankingLimitado) {     
+
+                                        Long clienteId = entrada.getKey(); 
+                                        Long diasSemComprar = entrada.getValue();
+
+                                        List<HistoricoCliente> historicoCliente = historicosPorCliente.get(clienteId);
+                                       
+                                        Cliente cliente = historicoCliente.get(0).getCliente();       
+                                                                        
+                                        ClientesSemCompraDTO resultado = new ClientesSemCompraDTO( 
+                                                cliente.getMatricula(),
+                                                cliente.getNome(),
+                                                cliente.getEmail(),
+                                                diasSemComprar
+                                        );
+                                        resultados.add(resultado);
+                                }
+                                return resultados;                       
+                        }//_______________________________________________________________________________________________________________________________________________________________________        
 }
-        
-
 
 
 

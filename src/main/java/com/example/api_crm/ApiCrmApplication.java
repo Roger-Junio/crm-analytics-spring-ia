@@ -8,6 +8,5 @@ public class ApiCrmApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(ApiCrmApplication.class, args);
 	}
-
 }
  

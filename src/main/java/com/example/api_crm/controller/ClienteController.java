@@ -15,7 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.example.api_crm.dto.AnaliseRequestDTO;
 import com.example.api_crm.dto.ClienteAnaliseDTO;
-
+import com.example.api_crm.dto.ClientesSemCompraDTO;
 import com.example.api_crm.model.HistoricoCliente;
 import com.example.api_crm.service.ClienteService;
 import com.example.api_crm.dto.TopClienteDTO;
@@ -75,6 +75,12 @@ public class ClienteController {
     @PostMapping("/analise/top-clientes-limite-valor-comprado")
     public List<TopClienteDTO> buscarTopClientesLimiteValorComprado(@RequestBody AnaliseRequestDTO request) {
     return clienteService.buscarTopClientesPorValorComprado(request);
+    }
+
+    //TOP CLIENTES X DIAS SEM COMPRAS
+    @PostMapping("/analise/top-clientes-sem-compra-x-dias")
+    public List<ClientesSemCompraDTO> topClientesSemCompraAXDias(@RequestBody AnaliseRequestDTO request) {
+        return clienteService.topClientesSemCompraAXDias(request);
     }
 
     
