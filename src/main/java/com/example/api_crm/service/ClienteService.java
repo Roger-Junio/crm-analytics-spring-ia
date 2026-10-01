@@ -408,7 +408,6 @@ public class ClienteService {
                                                 }
                                                          
                                         BigDecimal ticketMedio = valorTotalCompras.divide(BigDecimal.valueOf(quantidadeCompras),2,RoundingMode.HALF_UP);
-
                                         Cliente cliente = historicoCliente.get(0).getCliente();
 
                                         TopClienteDTO resultado = new TopClienteDTO(    
@@ -482,9 +481,4 @@ public class ClienteService {
                                 return resultados;                       
                         }//_______________________________________________________________________________________________________________________________________________________________________        
 }
-
-
-
-
-
                
