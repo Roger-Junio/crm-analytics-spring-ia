@@ -83,6 +83,11 @@ public class ClienteController {
         return clienteService.topClientesSemCompraAXDias(request);
     }
 
+    //TOP CLIENTE PELO TICKET MEDIO 
+    @PostMapping("/analise/top-clientes-maior-ticket-medio")
+    public List<TopClienteDTO> buscaClientesTicketMedio(@RequestBody AnaliseRequestDTO request) {
+        return clienteService.topClientesTicketMedio(request);
+    }
 
     
 

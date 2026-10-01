@@ -480,5 +480,72 @@ public class ClienteService {
                                 }
                                 return resultados;                       
                         }//_______________________________________________________________________________________________________________________________________________________________________        
+
+
+        //TOP CLIENTES TICKET MEDIO________________________________________________________________________________________________________________________________
+        public List<TopClienteDTO> topClientesTicketMedio(AnaliseRequestDTO request) {
+
+        List<HistoricoCliente> historicos = historicoClienteRepository.findByArquivoIdIn(request.getArquivos());                                
+        Map<Long, List<HistoricoCliente>> historicosPorCliente = agruparHistoricosPorCliente(historicos);                        
+        
+        Map<Long, BigDecimal> ticketMedioTodo = new HashMap<>();
+
+                for (Map.Entry<Long, List<HistoricoCliente>> entrada : historicosPorCliente.entrySet()) {
+                        
+                        Long clienteId = entrada.getKey(); 
+                        List<HistoricoCliente> historicoClientes = entrada.getValue(); 
+
+                        BigDecimal valorTotalCompras  = BigDecimal.ZERO; 
+                        int quantidadeCompras = 0;
+
+                                for (HistoricoCliente historico : historicoClientes ) {
+                                        
+                                        valorTotalCompras  = valorTotalCompras .add(historico.getTicketMedio());
+                                        quantidadeCompras += historico.getQuantidadeCompras();                
+                                }
+
+                                BigDecimal ticketMedio = valorTotalCompras .divide(BigDecimal.valueOf(quantidadeCompras),2,RoundingMode.HALF_UP);
+                                ticketMedioTodo.put(clienteId, ticketMedio); 
+                }
+
+                List<Map.Entry<Long, BigDecimal>> ranking = new ArrayList<>(ticketMedioTodo.entrySet()); 
+                ranking.sort(Map.Entry.comparingByValue(Comparator.reverseOrder())); 
+                List<Map.Entry<Long, BigDecimal>> rankingLimitado = ranking.stream().limit(request.getLimite()).toList();
+                
+                        List<TopClienteDTO> resultados = new ArrayList<>();
+
+                        for (Map.Entry<Long, BigDecimal> entrada : rankingLimitado) {
+
+                                Long clienteId = entrada.getKey();
+                                BigDecimal ticketMedio = entrada.getValue();
+
+                                List<HistoricoCliente> historicoCliente = historicosPorCliente.get(clienteId);
+                                
+                                int quantidadeCompras = 0;
+                                BigDecimal valorTotalCompras = BigDecimal.ZERO;
+
+                                for ( HistoricoCliente historico : historicoCliente) {
+                                        quantidadeCompras = quantidadeCompras + historico.getQuantidadeCompras(); 
+                                        valorTotalCompras = valorTotalCompras.add(historico.getValorTotalCompras()); 
+
+                                }
+
+                                Cliente cliente = historicoCliente.get(0).getCliente();
+
+                                        TopClienteDTO resultado = new TopClienteDTO(
+                                                cliente.getMatricula(),
+                                                cliente.getNome(),
+                                                cliente.getEmail(),
+                                                quantidadeCompras,
+                                                valorTotalCompras,
+                                                ticketMedio
+                                        );
+
+                                       
+                                        resultados.add(resultado);  
+                        }
+                                return resultados;
+        }//______________________________________________________________________________________________________________________________________________________________________               
+
 }
                
