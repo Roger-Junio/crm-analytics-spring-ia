@@ -66,7 +66,7 @@ public class ClienteController {
     //RECEBE UM DTO/FILTRO 
     //TOP CLIENTES QUE + TEVE NUMEROS DE COMPRA
     @PostMapping("/analise/top-clientes-limite")
-    public List<TopClienteDTO> buscarTopClientesLimite(@RequestBody AnaliseRequestDTO request) {
+    public List<TopClienteDTO> buscarTopClientesMaisCompras(@RequestBody AnaliseRequestDTO request) {
     return clienteService.buscarTopClientes(request);
     }
 

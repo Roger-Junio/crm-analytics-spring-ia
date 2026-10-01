@@ -1,0 +1,61 @@
+﻿matricula;nome;email;cidade;estado;quantidadeCompras;valorTotalCompras;ultimaCompra
+CLI001;Ana Costa;cliente001@email.com;Ipatinga;MG;19;6878.02;2025-01-09
+CLI002;Bruno Martins;cliente002@email.com;Coronel Fabriciano;MG;26;5600.59;2025-01-04
+CLI003;Rafael Costa;cliente003@email.com;Timóteo;MG;10;12402.01;2025-01-03
+CLI004;Mariana Alves;cliente004@email.com;Belo Oriente;MG;22;8157.21;2025-01-03
+CLI005;Carlos Souza;cliente005@email.com;Caratinga;MG;7;2452.62;2025-01-01
+CLI006;Juliana Lima;cliente006@email.com;Governador Valadares;MG;4;1356.17;2025-01-23
+CLI007;Felipe Oliveira;cliente007@email.com;João Monlevade;MG;12;3965.17;2025-01-19
+CLI008;Camila Santos;cliente008@email.com;Santana do Paraíso;MG;15;6040.46;2025-01-25
+CLI009;Lucas Pereira;cliente009@email.com;Ipatinga;MG;1;121.29;2025-01-11
+CLI010;Beatriz Rocha;cliente010@email.com;Coronel Fabriciano;MG;5;8959.10;2025-01-25
+CLI011;Gabriel Mendes;cliente011@email.com;Timóteo;MG;17;6246.13;2025-01-04
+CLI012;Larissa Gomes;cliente012@email.com;Belo Oriente;MG;27;6072.24;2025-01-09
+CLI013;Pedro Henrique;cliente013@email.com;Caratinga;MG;11;13231.22;2025-01-18
+CLI014;Amanda Ferreira;cliente014@email.com;Governador Valadares;MG;20;8872.85;2025-01-03
+CLI015;João Vitor;cliente015@email.com;João Monlevade;MG;8;2984.47;2025-01-20
+CLI016;Isabela Carvalho;cliente016@email.com;Santana do Paraíso;MG;4;1264.03;2025-01-07
+CLI017;Mateus Ribeiro;cliente017@email.com;Ipatinga;MG;13;4136.70;2025-01-08
+CLI018;Letícia Martins;cliente018@email.com;Coronel Fabriciano;MG;17;6993.66;2025-01-28
+CLI019;Gustavo Almeida;cliente019@email.com;Timóteo;MG;1;107.36;2025-01-09
+CLI020;Sofia Barbosa;cliente020@email.com;Belo Oriente;MG;5;10134.81;2025-01-06
+CLI021;Ana Costa 2;cliente021@email.com;Caratinga;MG;17;6404.93;2025-01-09
+CLI022;Bruno Martins 2;cliente022@email.com;Governador Valadares;MG;29;6979.27;2025-01-03
+CLI023;Rafael Costa 2;cliente023@email.com;João Monlevade;MG;10;10743.62;2025-01-24
+CLI024;Mariana Alves 2;cliente024@email.com;Santana do Paraíso;MG;21;8526.07;2025-01-09
+CLI025;Carlos Souza 2;cliente025@email.com;Ipatinga;MG;9;3238.20;2025-01-18
+CLI026;Juliana Lima 2;cliente026@email.com;Coronel Fabriciano;MG;4;1254.31;2025-01-25
+CLI027;Felipe Oliveira 2;cliente027@email.com;Timóteo;MG;13;4303.43;2025-01-02
+CLI028;Camila Santos 2;cliente028@email.com;Belo Oriente;MG;17;6248.99;2025-01-03
+CLI029;Lucas Pereira 2;cliente029@email.com;Caratinga;MG;1;127.00;2025-01-29
+CLI030;Beatriz Rocha 2;cliente030@email.com;Governador Valadares;MG;5;8953.99;2025-01-16
+CLI031;Gabriel Mendes 2;cliente031@email.com;João Monlevade;MG;18;7796.95;2025-01-15
+CLI032;Larissa Gomes 2;cliente032@email.com;Santana do Paraíso;MG;26;5600.70;2025-01-24
+CLI033;Pedro Henrique 2;cliente033@email.com;Ipatinga;MG;10;10954.31;2025-01-19
+CLI034;Amanda Ferreira 2;cliente034@email.com;Coronel Fabriciano;MG;22;9150.36;2025-01-12
+CLI035;João Vitor 2;cliente035@email.com;Timóteo;MG;7;2693.79;2025-01-17
+CLI036;Isabela Carvalho 2;cliente036@email.com;Belo Oriente;MG;4;1366.50;2025-01-28
+CLI037;Mateus Ribeiro 2;cliente037@email.com;Caratinga;MG;11;3948.13;2025-01-26
+CLI038;Letícia Martins 2;cliente038@email.com;Governador Valadares;MG;17;6497.92;2025-01-13
+CLI039;Gustavo Almeida 2;cliente039@email.com;João Monlevade;MG;1;128.24;2025-01-17
+CLI040;Sofia Barbosa 2;cliente040@email.com;Santana do Paraíso;MG;5;9601.13;2025-01-31
+CLI041;Ana Costa 3;cliente041@email.com;Ipatinga;MG;16;6682.52;2025-01-22
+CLI042;Bruno Martins 3;cliente042@email.com;Coronel Fabriciano;MG;31;7557.51;2025-01-25
+CLI043;Rafael Costa 3;cliente043@email.com;Timóteo;MG;10;10606.57;2025-01-14
+CLI044;Mariana Alves 3;cliente044@email.com;Belo Oriente;MG;20;7368.95;2025-01-24
+CLI045;Carlos Souza 3;cliente045@email.com;Caratinga;MG;9;3000.94;2025-01-17
+CLI046;Juliana Lima 3;cliente046@email.com;Governador Valadares;MG;4;1302.00;2025-01-04
+CLI047;Felipe Oliveira 3;cliente047@email.com;João Monlevade;MG;13;4366.58;2025-01-21
+CLI048;Camila Santos 3;cliente048@email.com;Santana do Paraíso;MG;16;5638.69;2025-01-12
+CLI049;Lucas Pereira 3;cliente049@email.com;Ipatinga;MG;1;117.59;2025-01-25
+CLI050;Beatriz Rocha 3;cliente050@email.com;Coronel Fabriciano;MG;6;12354.17;2025-01-20
+CLI051;Gabriel Mendes 3;cliente051@email.com;Timóteo;MG;17;6146.49;2025-01-30
+CLI052;Larissa Gomes 3;cliente052@email.com;Belo Oriente;MG;27;6876.24;2025-01-26
+CLI053;Pedro Henrique 3;cliente053@email.com;Caratinga;MG;10;10483.23;2025-01-29
+CLI054;Amanda Ferreira 3;cliente054@email.com;Governador Valadares;MG;22;8241.76;2025-01-24
+CLI055;João Vitor 3;cliente055@email.com;João Monlevade;MG;8;2558.76;2025-01-25
+CLI056;Isabela Carvalho 3;cliente056@email.com;Santana do Paraíso;MG;4;1202.70;2025-01-22
+CLI057;Mateus Ribeiro 3;cliente057@email.com;Ipatinga;MG;12;4241.84;2025-01-09
+CLI058;Letícia Martins 3;cliente058@email.com;Coronel Fabriciano;MG;16;6127.91;2025-01-31
+CLI059;Gustavo Almeida 3;cliente059@email.com;Timóteo;MG;1;117.58;2025-01-24
+CLI060;Sofia Barbosa 3;cliente060@email.com;Belo Oriente;MG;5;9904.60;2025-01-13
