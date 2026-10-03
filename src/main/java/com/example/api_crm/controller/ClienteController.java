@@ -19,6 +19,8 @@ import com.example.api_crm.dto.ClientesSemCompraDTO;
 import com.example.api_crm.model.HistoricoCliente;
 import com.example.api_crm.service.ClienteService;
 import com.example.api_crm.dto.TopClienteDTO;
+import com.example.api_crm.dto.ComparacaoPeriodosDTO;
+
 
 @RestController
 @RequestMapping("/clientes")
@@ -30,11 +32,11 @@ public class ClienteController {
         this.clienteService = clienteService;
     }
 
-    //RECEBEDOR DO ARQUIVO CSV
+    //RECEBEDOR DO ARQUIVO CSV -
     @PostMapping("/importar")
     public void importar(@RequestParam("arquivo") MultipartFile arquivo)
             throws IOException {
-        clienteService.importarArquivo(arquivo);
+        clienteService.importarArquivo(arquivo); 
     }
 
     //BUSCA PELA ID DO CLIENTE PARA SABER A QUANTIDADES DE DIAS SEM COMPRA
@@ -43,7 +45,7 @@ public class ClienteController {
     public Long buscarTeste(@PathVariable Long id) {
         return clienteService.diasSemComprar(id);
     }   
-    //RECEBE UM ID 
+    //RECEBE UM ID - 
     @GetMapping("/{id}/buscando-historico-pelo-id-cliente")
     public List<HistoricoCliente> getMethodName(@PathVariable Long id) {
         return clienteService.dadosArquivoHistoricoCliente(id);
@@ -63,9 +65,9 @@ public class ClienteController {
         return clienteService.buscarClientesEmRisco(request);
     }
 
-    //RECEBE UM DTO/FILTRO 
+    //RECEBE UM DTO/FILTRO ---
     //TOP CLIENTES QUE + TEVE NUMEROS DE COMPRA
-    @PostMapping("/analise/top-clientes-limite")
+    @PostMapping("/analise/top-clientes-quantidade-compras")
     public List<TopClienteDTO> buscarTopClientesMaisCompras(@RequestBody AnaliseRequestDTO request) {
     return clienteService.buscarTopClientes(request);
     }
@@ -88,8 +90,12 @@ public class ClienteController {
     public List<TopClienteDTO> buscaClientesTicketMedio(@RequestBody AnaliseRequestDTO request) {
         return clienteService.topClientesTicketMedio(request);
     }
-
     
+    //COMPARACAO ENTRE PERIODO/MES
+    @PostMapping("/analise/comparacap-entre-periodos")
+    public List<ComparacaoPeriodosDTO> comparacaoEntrePeriodos(@RequestBody AnaliseRequestDTO request) {
+        return clienteService.comparacaoEntrePeriodos(request);
+    }
 
   
     

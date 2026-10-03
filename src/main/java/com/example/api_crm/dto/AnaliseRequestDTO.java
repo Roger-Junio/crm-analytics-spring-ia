@@ -7,6 +7,9 @@ public class AnaliseRequestDTO {
     private List<Long> arquivos;
     private Integer limite;  
     private Integer dias;
+
+    private List<Long> arquivosPeriodoA; 
+    private List<Long> arquivosPeriodoB;
    
 
     public void setArquivos(List<Long> arquivos) {this.arquivos = arquivos;}
@@ -16,7 +19,14 @@ public class AnaliseRequestDTO {
         public Integer getLimite() {return limite;}
 
     public void setDias(Integer dias) {this.dias = dias;}
-        public Integer getDias() {return dias;}    
+        public Integer getDias() {return dias;} 
+        
+    public void setArquivosPeriodoA(List<Long> arquivosPeriodoA) {this.arquivosPeriodoA = arquivosPeriodoA; }
+        public List<Long> getArquivosPeriodoA() {return arquivosPeriodoA; }  
+
+    public void setArquivosPeriodoB(List<Long> arquivosPeriodoB) {this.arquivosPeriodoB = arquivosPeriodoB; }
+        public List<Long> getArquivosPeriodoB() {return arquivosPeriodoB; }    
+
 
    
 }

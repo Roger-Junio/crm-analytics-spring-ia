@@ -1,8 +1,10 @@
 package com.example.api_crm.service;
 
+
 import com.example.api_crm.dto.AnaliseRequestDTO;
 import com.example.api_crm.dto.ClienteAnaliseDTO;
 import com.example.api_crm.dto.ClientesSemCompraDTO;
+import com.example.api_crm.dto.ComparacaoPeriodosDTO;
 import com.example.api_crm.dto.TopClienteDTO;
 import com.example.api_crm.model.Arquivo;
 import com.example.api_crm.model.Cliente;
@@ -23,9 +25,11 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -47,56 +51,7 @@ public class ClienteService {
         this.arquivoClienteRepository = arquivoClienteRepository;
     }
     
-        //calcula o ticket medio_______________________________________________________________________________________________________________________________
-        public BigDecimal ticketMedioHistorico(HistoricoCliente historicoCliente) {
-
-                var quantidadeCompras = historicoCliente.getQuantidadeCompras();
-                var valorTotalCompras = historicoCliente.getValorTotalCompras();
-
-                        if (quantidadeCompras == 0) {
-                                return BigDecimal.ZERO;
-                        }
-                        
-                return valorTotalCompras.divide(
-                BigDecimal.valueOf(quantidadeCompras),
-                2,
-                RoundingMode.HALF_UP
-                );
-        }//___________________________________________________________________________________________________________________________________________________     
-   
-        // CALCULA QUANTOS DIAS DESDE A ÚLTIMA COMPRA_______________________________________________________________________________________________________________________________
-        public Long diasDesdeUltimaCompra(HistoricoCliente historicoCliente) {
-
-                LocalDate hoje = LocalDate.now();
-                LocalDate ultimaCompra = historicoCliente.getUltimaCompra();
-
-                return ChronoUnit.DAYS.between(ultimaCompra, hoje);
-        }//______________________________________________________________________________________________________________________________________________________________________________
-    
-        // BUSCA QUANTOS DIAS O CLIENTE ESTÁ SEM COMPRAR//______________________________________________________________________________________________________________________________________________________________________________
-        public Long diasSemComprar(Long id) {
-
-                var resultado = historicoClienteRepository.findById(id).orElseThrow();
-                return diasDesdeUltimaCompra(resultado);
-        }//______________________________________________________________________________________________________________________________________________________________________________
-    
-        //CLASIFICAÇÃO DO CLIENTE
-        public String classificarCliente(HistoricoCliente historicoCliente) {
-
-                long dias = diasDesdeUltimaCompra(historicoCliente);
-
-                if (dias <= 30) {
-                return "Ativo";
-
-                } else if (dias <= 60) {
-                return "Atenção";
-
-                } else {
-                return "Em risco";
-                }
-        }//______________________________________________________________________________________________________________________________________________________________________________
-
-        //IMPORTA ARQUIVO CSV______________________________________________________________________________________________________________________________________________________________________________
+         //IMPORTA ARQUIVO CSV______________________________________________________________________________________________________________________________________________________________________________
         public void importarArquivo(MultipartFile arquivo) throws IOException {      
         //BufferedReader utilizado para leitura do arquivo //InputStreamReader utliza para transforma byst em char para melhor utilizar
         BufferedReader reader = new BufferedReader( new InputStreamReader(arquivo.getInputStream()));    
@@ -188,6 +143,55 @@ public class ClienteService {
             historicoClienteRepository.save(historicoCliente);
         }
     }
+
+        //calcula o ticket medio_______________________________________________________________________________________________________________________________
+        public BigDecimal ticketMedioHistorico(HistoricoCliente historicoCliente) {
+
+                var quantidadeCompras = historicoCliente.getQuantidadeCompras();
+                var valorTotalCompras = historicoCliente.getValorTotalCompras();
+
+                        if (quantidadeCompras == 0) {
+                                return BigDecimal.ZERO;
+                        }
+                        
+                return valorTotalCompras.divide(
+                BigDecimal.valueOf(quantidadeCompras),
+                2,
+                RoundingMode.HALF_UP
+                );
+        }//___________________________________________________________________________________________________________________________________________________     
+   
+        // CALCULA QUANTOS DIAS DESDE A ÚLTIMA COMPRA_______________________________________________________________________________________________________________________________
+        public Long diasDesdeUltimaCompra(HistoricoCliente historicoCliente) {
+
+                LocalDate hoje = LocalDate.now();
+                LocalDate ultimaCompra = historicoCliente.getUltimaCompra();
+
+                return ChronoUnit.DAYS.between(ultimaCompra, hoje);
+        }//______________________________________________________________________________________________________________________________________________________________________________
+    
+        // BUSCA QUANTOS DIAS O CLIENTE ESTÁ SEM COMPRAR//______________________________________________________________________________________________________________________________________________________________________________
+        public Long diasSemComprar(Long id) {
+
+                var resultado = historicoClienteRepository.findById(id).orElseThrow();
+                return diasDesdeUltimaCompra(resultado);
+        }//______________________________________________________________________________________________________________________________________________________________________________
+    
+        //CLASIFICAÇÃO DO CLIENTE
+        public String classificarCliente(HistoricoCliente historicoCliente) {
+
+                long dias = diasDesdeUltimaCompra(historicoCliente);
+
+                if (dias <= 30) {
+                return "Ativo";
+
+                } else if (dias <= 60) {
+                return "Atenção";
+
+                } else {
+                return "Em risco";
+                }
+        }//______________________________________________________________________________________________________________________________________________________________________________
           
         public List<HistoricoCliente> dadosArquivoHistoricoCliente(Long id) {
 
@@ -481,7 +485,7 @@ public class ClienteService {
                                 return resultados;                       
                         }//_______________________________________________________________________________________________________________________________________________________________________        
 
-
+        
         //TOP CLIENTES TICKET MEDIO________________________________________________________________________________________________________________________________
         public List<TopClienteDTO> topClientesTicketMedio(AnaliseRequestDTO request) {
 
@@ -500,7 +504,7 @@ public class ClienteService {
 
                                 for (HistoricoCliente historico : historicoClientes ) {
                                         
-                                        valorTotalCompras  = valorTotalCompras .add(historico.getTicketMedio());
+                                        valorTotalCompras  = valorTotalCompras .add(historico.getValorTotalCompras());
                                         quantidadeCompras += historico.getQuantidadeCompras();                
                                 }
 
@@ -547,5 +551,73 @@ public class ClienteService {
                                 return resultados;
         }//______________________________________________________________________________________________________________________________________________________________________               
 
+        //COMPARACAO ENTRE PERIODO/MES_____________________________________________________________________________________________________________________________________________________________________________________________
+        public List<ComparacaoPeriodosDTO> comparacaoEntrePeriodos(AnaliseRequestDTO request) {
+
+                List<HistoricoCliente> historicosPeriodoA = historicoClienteRepository.findByArquivoIdIn(request.getArquivosPeriodoA());
+                Map<Long, List<HistoricoCliente>> historicoClientePeriodoA = agruparHistoricosPorCliente(historicosPeriodoA);
+
+                List<HistoricoCliente> historicosPeriodoB = historicoClienteRepository.findByArquivoIdIn(request.getArquivosPeriodoB());
+                Map<Long, List<HistoricoCliente>> historicoClientePeriodoB = agruparHistoricosPorCliente(historicosPeriodoB); 
+
+                Set<Long> clientesIds = new HashSet<>(); 
+                
+                        for (Map.Entry<Long, List<HistoricoCliente>> entrada : historicoClientePeriodoA.entrySet()) {
+
+                                Long clienteIdsA = entrada.getKey(); 
+                                clientesIds.add(clienteIdsA);    
+                        }
+
+                        for (Map.Entry<Long, List<HistoricoCliente>> entrada : historicoClientePeriodoB.entrySet()) {
+
+                                Long clientesIdsB = entrada.getKey(); 
+                                clientesIds.add(clientesIdsB);
+                        }
+                        
+                      List<ComparacaoPeriodosDTO> comparacoes = new ArrayList<>();
+
+                for (Long clientesId : clientesIds) {
+
+                        List<HistoricoCliente> historicoClienteA = historicoClientePeriodoA.get(clientesId);
+                        List<HistoricoCliente> historicoClienteB = historicoClientePeriodoB.get(clientesId);
+                        
+                        int quantidadeDeComprasA = 0; 
+                        int quantidadeDeComprasB = 0; 
+
+                                if (historicoClienteA != null) {
+
+                                        for (HistoricoCliente historico : historicoClienteA) {           
+                                                quantidadeDeComprasA =  quantidadeDeComprasA + historico.getQuantidadeCompras(); 
+                                        }
+                                }
+                               
+                                if (historicoClienteB != null) {
+
+                                        for (HistoricoCliente historico : historicoClienteB) {
+                                                quantidadeDeComprasB = quantidadeDeComprasB + historico.getQuantidadeCompras(); 
+                                        }
+                                }
+
+                        Integer diferencaQuantidadeCompras  = quantidadeDeComprasB - quantidadeDeComprasA; 
+                        Cliente cliente;
+            
+                        if (historicoClienteA != null) {
+                                cliente = historicoClienteA.get(0).getCliente();
+                        } else  { 
+                                cliente = historicoClienteB.get(0).getCliente();
+                        }
+                       
+                        ComparacaoPeriodosDTO comparacao = new ComparacaoPeriodosDTO(
+                                cliente.getMatricula(),
+                                cliente.getNome(),
+                                quantidadeDeComprasA,
+                                quantidadeDeComprasB,
+                                diferencaQuantidadeCompras
+                        );          
+                               comparacoes.add(comparacao);
+                }
+                return comparacoes; 
+        }//______________________________________________________________________________________________________________________________________________________________
 }
-               
+
+                
