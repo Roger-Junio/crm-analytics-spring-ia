@@ -618,6 +618,24 @@ public class ClienteService {
                 }
                 return comparacoes; 
         }//______________________________________________________________________________________________________________________________________________________________
+
+        //DESENVOLVIMENTOS 
+        public List<ComparacaoPeriodosDTO> quedaDeCompras(AnaliseRequestDTO request) {
+        List<ComparacaoPeriodosDTO> comparacoes = comparacaoEntrePeriodos(request); 
+
+        List<ComparacaoPeriodosDTO> somenteQuemTeveQueda = new ArrayList<>();
+
+                for (ComparacaoPeriodosDTO comparacao  : comparacoes) {
+
+                      Integer diferencaQuantidadeCompras = comparacao.getDiferencaQuantidadeCompras();
+
+                        if (diferencaQuantidadeCompras < 0) {
+                         somenteQuemTeveQueda.add(comparacao);
+                        }
+                }
+		        return somenteQuemTeveQueda;
+        }
+        
 }
 
                 

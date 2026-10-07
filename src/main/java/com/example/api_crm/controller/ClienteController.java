@@ -92,10 +92,19 @@ public class ClienteController {
     }
     
     //COMPARACAO ENTRE PERIODO/MES
-    @PostMapping("/analise/comparacap-entre-periodos")
+    @PostMapping("/analise/comparacao-entre-periodos")
     public List<ComparacaoPeriodosDTO> comparacaoEntrePeriodos(@RequestBody AnaliseRequestDTO request) {
         return clienteService.comparacaoEntrePeriodos(request);
     }
+
+  @PostMapping("/analise/queda-de-compras")
+public List<ComparacaoPeriodosDTO> quedaDeCompras(
+        @RequestBody AnaliseRequestDTO request) {
+
+    return clienteService.quedaDeCompras(request);
+}
+
+
 
   
     
