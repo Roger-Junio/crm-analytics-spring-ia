@@ -20,6 +20,7 @@ import com.example.api_crm.model.HistoricoCliente;
 import com.example.api_crm.service.ClienteService;
 import com.example.api_crm.dto.TopClienteDTO;
 import com.example.api_crm.dto.ComparacaoPeriodosDTO;
+import com.example.api_crm.dto.ResumoPeriodoDTO;
 
 
 @RestController
@@ -97,23 +98,18 @@ public class ClienteController {
         return clienteService.comparacaoEntrePeriodos(request);
     }
 
-  @PostMapping("/analise/queda-de-compras")
-public List<ComparacaoPeriodosDTO> quedaDeCompras(
-        @RequestBody AnaliseRequestDTO request) {
-
-    return clienteService.quedaDeCompras(request);
-}
-
-
-
-  
+    //CLIENTES COM QUEDA DE COMPRAS
+    @PostMapping("/analise/queda-de-compras")
+    public List<ComparacaoPeriodosDTO> quedaDeCompras(@RequestBody AnaliseRequestDTO request) {
+        return clienteService.quedaDeCompras(request);
+    }     
     
-
-
-
-
+    //RESUMO DE PERIODOS SELECIONADOS
+    @PostMapping("/analise/resumo-periodo-selecionado")
+    public ResumoPeriodoDTO resumoPeriodo(@RequestBody AnaliseRequestDTO request) {
+        return clienteService.resumoPeriodo(request);
+    }  
     
-
 }
    
 

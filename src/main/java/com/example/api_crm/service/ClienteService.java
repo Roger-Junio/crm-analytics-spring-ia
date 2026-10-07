@@ -5,6 +5,7 @@ import com.example.api_crm.dto.AnaliseRequestDTO;
 import com.example.api_crm.dto.ClienteAnaliseDTO;
 import com.example.api_crm.dto.ClientesSemCompraDTO;
 import com.example.api_crm.dto.ComparacaoPeriodosDTO;
+import com.example.api_crm.dto.ResumoPeriodoDTO;
 import com.example.api_crm.dto.TopClienteDTO;
 import com.example.api_crm.model.Arquivo;
 import com.example.api_crm.model.Cliente;
@@ -619,7 +620,7 @@ public class ClienteService {
                 return comparacoes; 
         }//______________________________________________________________________________________________________________________________________________________________
 
-        //DESENVOLVIMENTOS 
+        //CLIENTES COM QUEDA DE COMPRAS______________________________________________________________________________________________________________________________________
         public List<ComparacaoPeriodosDTO> quedaDeCompras(AnaliseRequestDTO request) {
         List<ComparacaoPeriodosDTO> comparacoes = comparacaoEntrePeriodos(request); 
 
@@ -634,8 +635,47 @@ public class ClienteService {
                         }
                 }
 		        return somenteQuemTeveQueda;
-        }
+        }//________________________________________________________________________________________________________________________________________________________________________
         
+        //RESUMO DE PERIODOS SELECIONADOS__________________________________________________________________________________________________________________________________________ 
+        public ResumoPeriodoDTO resumoPeriodo(AnaliseRequestDTO request) {
+        List<HistoricoCliente> historicoCliente = historicoClienteRepository.findByArquivoIdIn(request.getArquivos()); 
+
+        Set<Long> clientesIds = new HashSet<>();
+
+        Integer totalClientes = 0; 
+        Integer totalCompras = 0;
+        BigDecimal totalFaturamento = BigDecimal.ZERO; 
+        BigDecimal ticketMedioGeral = BigDecimal.ZERO; 
+
+                        for (HistoricoCliente historicoClientes : historicoCliente) {
+
+                                totalCompras = totalCompras + historicoClientes.getQuantidadeCompras(); 
+                                totalFaturamento = totalFaturamento.add(historicoClientes.getValorTotalCompras());
+                                clientesIds.add(historicoClientes.getCliente().getId());
+                                totalClientes = clientesIds.size();
+                        }
+               
+
+                        if (totalCompras > 0) {
+
+                                ticketMedioGeral = totalFaturamento.divide(
+                                BigDecimal.valueOf(totalCompras),
+                                2,
+                                RoundingMode.HALF_UP
+                                );
+                        }
+
+                        ResumoPeriodoDTO resumoPeriodo =  new ResumoPeriodoDTO(
+                                totalClientes,
+                                totalCompras,
+                                totalFaturamento,
+                                ticketMedioGeral
+                        );
+
+                return resumoPeriodo; 
+                
+        }//________________________________________________________________________________________________________________________________________________________________________
 }
 
                 
