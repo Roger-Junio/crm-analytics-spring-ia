@@ -34,7 +34,7 @@ public class ClienteController {
     }
 
     //RECEBEDOR DO ARQUIVO CSV -
-    @PostMapping("/importar")
+    @PostMapping("/importacoes")
     public void importar(@RequestParam("arquivo") MultipartFile arquivo)
             throws IOException {
         clienteService.importarArquivo(arquivo); 
@@ -47,65 +47,65 @@ public class ClienteController {
         return clienteService.diasSemComprar(id);
     }   
     //RECEBE UM ID - 
-    @GetMapping("/{id}/buscando-historico-pelo-id-cliente")
+    @GetMapping("/{id}/historicos")
     public List<HistoricoCliente> getMethodName(@PathVariable Long id) {
         return clienteService.dadosArquivoHistoricoCliente(id);
     }
 
     //RECEBE UM ID 
     //BUSCA CONSOLIDADA ESPECIFICA DE UM ID CLIENTE
-    @GetMapping("/{id}/buscando-dados-consolidados")
+    @GetMapping("/{id}/resumo")
     public ClienteAnaliseDTO buscarDadosConsolidadosDTO(@PathVariable Long id) {
         return clienteService.buscarDadosConsolidados(id);
     }
 
     //RECEBE UM DTO/FILTRO
     //CLIENTES EM RISCO
-    @PostMapping("/analise/clientes-em-risco")
+    @PostMapping("/analises/clientes-em-risco")
     public List<ClienteAnaliseDTO> buscarClientesEmRisco(@RequestBody AnaliseRequestDTO request) {
         return clienteService.buscarClientesEmRisco(request);
     }
 
     //RECEBE UM DTO/FILTRO ---
     //TOP CLIENTES QUE + TEVE NUMEROS DE COMPRA
-    @PostMapping("/analise/top-clientes-quantidade-compras")
+    @PostMapping("/analises/top-quantidade-compras")
     public List<TopClienteDTO> buscarTopClientesMaisCompras(@RequestBody AnaliseRequestDTO request) {
     return clienteService.buscarTopClientes(request);
     }
 
     //RECEBE UM DTO/FILTRO 
     //TOP CLIENTES QUE + TEVE VALOR COMPRADO 
-    @PostMapping("/analise/top-clientes-limite-valor-comprado")
+    @PostMapping("/analises/top-valor-compras")
     public List<TopClienteDTO> buscarTopClientesLimiteValorComprado(@RequestBody AnaliseRequestDTO request) {
     return clienteService.buscarTopClientesPorValorComprado(request);
     }
 
     //TOP CLIENTES X DIAS SEM COMPRAS
-    @PostMapping("/analise/top-clientes-sem-compra-x-dias")
+    @PostMapping("/analises/sem-compra")
     public List<ClientesSemCompraDTO> topClientesSemCompraAXDias(@RequestBody AnaliseRequestDTO request) {
         return clienteService.topClientesSemCompraAXDias(request);
     }
 
     //TOP CLIENTE PELO TICKET MEDIO 
-    @PostMapping("/analise/top-clientes-maior-ticket-medio")
+    @PostMapping("/analises/maior-ticket-medio")
     public List<TopClienteDTO> buscaClientesTicketMedio(@RequestBody AnaliseRequestDTO request) {
         return clienteService.topClientesTicketMedio(request);
     }
     
     //COMPARACAO ENTRE PERIODO/MES
-    @PostMapping("/analise/comparacao-entre-periodos")
+    @PostMapping("/analises/comparacao-periodos")
     public List<ComparacaoPeriodosDTO> comparacaoEntrePeriodos(@RequestBody AnaliseRequestDTO request) {
         return clienteService.comparacaoEntrePeriodos(request);
     }
 
     //CLIENTES COM QUEDA DE COMPRAS
-    @PostMapping("/analise/queda-de-compras")
+    @PostMapping("/analises/queda-compras")
     public List<ComparacaoPeriodosDTO> quedaDeCompras(@RequestBody AnaliseRequestDTO request) {
         return clienteService.quedaDeCompras(request);
     }     
     
     //RESUMO DE PERIODOS SELECIONADOS
-    @PostMapping("/analise/resumo-periodo-selecionado")
+    @PostMapping("/analises/resumo-periodos")
     public ResumoPeriodoDTO resumoPeriodo(@RequestBody AnaliseRequestDTO request) {
         return clienteService.resumoPeriodo(request);
     }  
