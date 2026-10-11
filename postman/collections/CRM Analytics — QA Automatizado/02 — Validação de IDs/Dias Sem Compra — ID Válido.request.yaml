@@ -1,0 +1,17 @@
+$kind: http-request
+name: Dias Sem Compra — ID Válido
+settings: {}
+order: 3000
+method: GET
+url: "{{baseUrl}}/clientes/{{clienteIdValido}}/dias-sem-compra"
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status 200 - Dias sem compra retornado", function () {
+          pm.response.to.have.status(200);
+      });
+      pm.test("Resposta contém valor numérico ou objeto", function () {
+          const body = pm.response.json();
+          pm.expect(body).to.exist;
+      });
+    language: text/javascript

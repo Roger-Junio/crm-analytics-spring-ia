@@ -1,0 +1,25 @@
+$kind: http-request
+name: Comparação — Período A inválido (400)
+settings: {}
+order: 2000
+method: POST
+url: "{{baseUrl}}/clientes/analises/comparacao-periodos"
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "arquivosPeriodoA": [{{arquivoIdInexistente}}],
+      "arquivosPeriodoB": [{{arquivoIdValido}}]
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status 400 - Período A inválido rejeitado", function () {
+          pm.response.to.have.status(400);
+      });
+      pm.test("Mensagem de erro presente", function () {
+          pm.expect(pm.response.text()).to.not.be.empty;
+      });
+    language: text/javascript

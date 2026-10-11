@@ -1,0 +1,24 @@
+$kind: http-request
+name: Clientes em Risco — ID Inválido (400)
+settings: {}
+order: 2000
+method: POST
+url: "{{baseUrl}}/clientes/analises/clientes-em-risco"
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "arquivos": [{{arquivoIdInexistente}}]
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status 400 - Arquivo inválido rejeitado", function () {
+          pm.response.to.have.status(400);
+      });
+      pm.test("Mensagem de erro presente", function () {
+          pm.expect(pm.response.text()).to.not.be.empty;
+      });
+    language: text/javascript

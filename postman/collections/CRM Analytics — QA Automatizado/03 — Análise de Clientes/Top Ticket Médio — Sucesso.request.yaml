@@ -1,0 +1,38 @@
+$kind: http-request
+name: Top Ticket Médio — Sucesso
+settings: {}
+order: 5000
+method: POST
+url: "{{baseUrl}}/clientes/analises/maior-ticket-medio"
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "arquivos": [{{arquivoIdValido}}],
+      "limite": 5
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status 200 - Top ticket médio retornado", function () {
+          pm.response.to.have.status(200);
+      });
+      pm.test("Resposta é um array", function () {
+          const body = pm.response.json();
+          pm.expect(body).to.be.an("array");
+      });
+      pm.test("Limite respeitado", function () {
+          const body = pm.response.json();
+          pm.expect(body.length).to.be.at.most(5);
+      });
+      pm.test("ticketMedio é número positivo", function () {
+          const body = pm.response.json();
+          if (body.length > 0) {
+              body.forEach(function(c) {
+                  pm.expect(c.ticketMedio).to.be.a("number").and.to.be.above(0);
+              });
+          }
+      });
+    language: text/javascript

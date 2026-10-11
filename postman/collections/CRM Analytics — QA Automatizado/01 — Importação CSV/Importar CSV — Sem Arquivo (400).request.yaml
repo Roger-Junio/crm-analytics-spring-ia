@@ -1,0 +1,23 @@
+$kind: http-request
+settings: {}
+order: 2000
+method: POST
+url: "{{baseUrl}}/clientes/importacoes"
+body:
+  type: formdata
+  content:
+    - type: file
+      key: arquivo
+      src: []
+      description: ""
+      disabled: false
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status 400 - Requisição inválida sem arquivo", function () {
+          pm.response.to.have.status(400);
+      });
+      pm.test("Resposta indica erro de validação", function () {
+          pm.expect(pm.response.text()).to.not.be.empty;
+      });
+    language: text/javascript

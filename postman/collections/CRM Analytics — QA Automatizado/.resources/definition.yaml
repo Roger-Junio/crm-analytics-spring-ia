@@ -1,0 +1,17 @@
+$kind: collection
+name: CRM Analytics — QA Automatizado
+version: '1.0.0'
+variables:
+  baseUrl: http://localhost:8080
+  arquivoIdValido: "2"
+  arquivoIdValido2: "3"
+  arquivoIdInexistente: "999999"
+  clienteIdValido: CLI003
+  dataReferencia: 2025-01-31
+scripts:
+  - type: http:beforeRequest
+    code: |-
+      if (!pm.collectionVariables.get("arquivoIdValido")) {
+          pm.collectionVariables.set("arquivoIdValido", 2);
+      }
+    language: text/javascript

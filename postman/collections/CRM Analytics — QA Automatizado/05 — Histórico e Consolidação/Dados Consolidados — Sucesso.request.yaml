@@ -1,0 +1,20 @@
+$kind: http-request
+name: Dados Consolidados — Sucesso
+settings: {}
+order: 2000
+method: GET
+url: "{{baseUrl}}/clientes/{{clienteIdValido}}/resumo"
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status 200 - Dados consolidados retornados", function () {
+          pm.response.to.have.status(200);
+      });
+      pm.test("Resposta é objeto JSON", function () {
+          const body = pm.response.json();
+          pm.expect(body).to.be.an("object");
+      });
+      pm.test("Tempo de resposta abaixo de 3000ms", function () {
+          pm.expect(pm.response.responseTime).to.be.below(3000);
+      });
+    language: text/javascript

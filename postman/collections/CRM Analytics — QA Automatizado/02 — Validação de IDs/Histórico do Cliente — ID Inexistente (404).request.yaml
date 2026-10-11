@@ -1,0 +1,12 @@
+$kind: http-request
+settings: {}
+order: 2000
+method: GET
+url: "{{baseUrl}}/clientes/{{clienteIdInexistente}}/historicos"
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status 404 - Cliente não encontrado", function () {
+          pm.response.to.have.status(404);
+      });
+    language: text/javascript

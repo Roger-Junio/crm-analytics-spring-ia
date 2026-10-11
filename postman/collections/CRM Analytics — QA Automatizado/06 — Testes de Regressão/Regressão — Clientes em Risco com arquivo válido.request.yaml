@@ -1,0 +1,31 @@
+$kind: http-request
+name: Regressão — Clientes em Risco com arquivo válido
+settings: {}
+order: 2000
+method: POST
+url: "{{baseUrl}}/clientes/analises/clientes-em-risco"
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "arquivos": [{{arquivoIdValido}}]
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Regressão: Status 200", function () {
+          pm.response.to.have.status(200);
+      });
+      pm.test("Regressão: Retorna array não vazio", function () {
+          const body = pm.response.json();
+          pm.expect(body).to.be.an("array").and.to.have.length.above(0);
+      });
+      pm.test("Regressão: Nenhum cliente sem classificação", function () {
+          const body = pm.response.json();
+          body.forEach(function(c) {
+              pm.expect(c.classificacao).to.not.be.empty;
+          });
+      });
+    language: text/javascript

@@ -1,0 +1,28 @@
+$kind: http-request
+settings: {}
+order: 1000
+method: POST
+url: "{{baseUrl}}/clientes/importacoes"
+body:
+  type: formdata
+  content:
+    - type: file
+      key: arquivo
+      src:
+        - ""
+        - /C:/Users/Roger/OneDrive/Documentos/PROGRAMAÇÂO/api-crm/csv.teste/CSV_2025_TESTE/clientes_janeiro_2025.csv
+      disabled: false
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status 200 - Importação aceita", function () {
+          pm.response.to.have.status(200);
+      });
+      pm.test("Resposta sem corpo de erro", function () {
+          pm.expect(pm.response.text()).to.not.include("error");
+          pm.expect(pm.response.text()).to.not.include("Error");
+      });
+      pm.test("Tempo de resposta abaixo de 5000ms", function () {
+          pm.expect(pm.response.responseTime).to.be.below(5000);
+      });
+    language: text/javascript

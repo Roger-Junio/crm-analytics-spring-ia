@@ -1,0 +1,24 @@
+$kind: http-request
+url: "{{baseUrl}}/clientes/importacoes"
+method: POST
+body:
+  type: formdata
+  content:
+    - type: file
+      key: arquivo
+      src:
+        - /C:/Users/Roger/OneDrive/Documentos/PROGRAMAÇÂO/api-crm/csv.teste/CSV_2025_TESTE/clientes_janeiro_2025.csv
+      description: ""
+      disabled: false
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Endpoint de importação acessível (não retorna 500)", function () {
+          pm.expect(pm.response.code).to.not.equal(500);
+      });
+      pm.test("Servidor respondeu", function () {
+          pm.expect(pm.response.responseTime).to.be.below(10000);
+      });
+    language: text/javascript
+settings: {}
+order: 1000
