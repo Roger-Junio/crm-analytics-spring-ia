@@ -699,11 +699,17 @@ public class ClienteService {
 
                         Integer diferencaQuantidadeCompras  = quantidadeDeComprasB - quantidadeDeComprasA; 
                         Cliente cliente;
-            
-                        if (historicoClienteA != null) {
-                                cliente = historicoClienteA.get(0).getCliente();
-                        } else  { 
-                                cliente = historicoClienteB.get(0).getCliente();
+
+                        if (historicoClienteA != null && !historicoClienteA.isEmpty()) {
+                        cliente = historicoClienteA.get(0).getCliente();
+
+                        } else if (historicoClienteB != null && !historicoClienteB.isEmpty()) {
+                        cliente = historicoClienteB.get(0).getCliente();
+
+                        } else {
+                        throw new IllegalStateException(
+                                "Cliente sem histórico nos períodos selecionados: " + clientesId
+                        );
                         }
                        
                         ComparacaoPeriodosDTO comparacao = new ComparacaoPeriodosDTO(
