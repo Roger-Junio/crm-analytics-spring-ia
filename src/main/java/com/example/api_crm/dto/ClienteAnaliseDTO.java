@@ -2,8 +2,6 @@ package com.example.api_crm.dto;
 
 import java.math.BigDecimal;
 
-import com.example.api_crm.model.Cliente;
-
 public class ClienteAnaliseDTO {  
 
     private String nome;

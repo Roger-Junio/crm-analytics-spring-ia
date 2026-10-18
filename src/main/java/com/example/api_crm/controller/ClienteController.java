@@ -18,6 +18,9 @@ import com.example.api_crm.dto.ClienteAnaliseDTO;
 import com.example.api_crm.dto.ClientesSemCompraDTO;
 import com.example.api_crm.model.HistoricoCliente;
 import com.example.api_crm.service.ClienteService;
+
+import jakarta.validation.Valid;
+
 import com.example.api_crm.dto.TopClienteDTO;
 import com.example.api_crm.dto.ComparacaoPeriodosDTO;
 import com.example.api_crm.dto.ResumoPeriodoDTO;
@@ -37,7 +40,7 @@ public class ClienteController {
     @PostMapping("/importacoes")
     public void importar(@RequestParam("arquivo") MultipartFile arquivo)
             throws IOException {
-        clienteService.importarArquivo(arquivo); 
+        clienteService.importarArquivo(arquivo);
     }
 
     //BUSCA PELA ID DO CLIENTE PARA SABER A QUANTIDADES DE DIAS SEM COMPRA
@@ -45,14 +48,14 @@ public class ClienteController {
     @GetMapping("/{id}/dias-sem-compra")
     public Long buscarTeste(@PathVariable Long id) {
         return clienteService.diasSemComprar(id);
-    }   
-    //RECEBE UM ID - 
+    }
+    //RECEBE UM ID -
     @GetMapping("/{id}/historicos")
     public List<HistoricoCliente> getMethodName(@PathVariable Long id) {
         return clienteService.dadosArquivoHistoricoCliente(id);
     }
 
-    //RECEBE UM ID 
+    //RECEBE UM ID
     //BUSCA CONSOLIDADA ESPECIFICA DE UM ID CLIENTE
     @GetMapping("/{id}/resumo")
     public ClienteAnaliseDTO buscarDadosConsolidadosDTO(@PathVariable Long id) {
@@ -62,54 +65,54 @@ public class ClienteController {
     //RECEBE UM DTO/FILTRO
     //CLIENTES EM RISCO
     @PostMapping("/analises/clientes-em-risco")
-    public List<ClienteAnaliseDTO> buscarClientesEmRisco(@RequestBody AnaliseRequestDTO request) {
+    public List<ClienteAnaliseDTO> buscarClientesEmRisco(@Valid @RequestBody AnaliseRequestDTO request) {
         return clienteService.buscarClientesEmRisco(request);
     }
 
-    //RECEBE UM DTO/FILTRO ---
+    //RECEBE UM DTO/FILTRO --- ✅
     //TOP CLIENTES QUE + TEVE NUMEROS DE COMPRA
     @PostMapping("/analises/top-quantidade-compras")
-    public List<TopClienteDTO> buscarTopClientesMaisCompras(@RequestBody AnaliseRequestDTO request) {
+    public List<TopClienteDTO> buscarTopClientesMaisCompras(@Valid @RequestBody AnaliseRequestDTO request) {
     return clienteService.buscarTopClientes(request);
     }
 
-    //RECEBE UM DTO/FILTRO 
-    //TOP CLIENTES QUE + TEVE VALOR COMPRADO 
+    //RECEBE UM DTO/FILTRO
+    //TOP CLIENTES QUE + TEVE VALOR COMPRADO
     @PostMapping("/analises/top-valor-compras")
-    public List<TopClienteDTO> buscarTopClientesLimiteValorComprado(@RequestBody AnaliseRequestDTO request) {
+    public List<TopClienteDTO> buscarTopClientesLimiteValorComprado(@Valid @RequestBody AnaliseRequestDTO request) {
     return clienteService.buscarTopClientesPorValorComprado(request);
     }
 
     //TOP CLIENTES X DIAS SEM COMPRAS
     @PostMapping("/analises/sem-compra")
-    public List<ClientesSemCompraDTO> topClientesSemCompraAXDias(@RequestBody AnaliseRequestDTO request) {
+    public List<ClientesSemCompraDTO> topClientesSemCompraAXDias(@Valid @RequestBody AnaliseRequestDTO request) {
         return clienteService.topClientesSemCompraAXDias(request);
     }
 
-    //TOP CLIENTE PELO TICKET MEDIO 
+    //TOP CLIENTE PELO TICKET MEDIO
     @PostMapping("/analises/maior-ticket-medio")
-    public List<TopClienteDTO> buscaClientesTicketMedio(@RequestBody AnaliseRequestDTO request) {
+    public List<TopClienteDTO> buscaClientesTicketMedio(@Valid @RequestBody AnaliseRequestDTO request) {
         return clienteService.topClientesTicketMedio(request);
     }
-    
+
     //COMPARACAO ENTRE PERIODO/MES
     @PostMapping("/analises/comparacao-periodos")
-    public List<ComparacaoPeriodosDTO> comparacaoEntrePeriodos(@RequestBody AnaliseRequestDTO request) {
+    public List<ComparacaoPeriodosDTO> comparacaoEntrePeriodos(@Valid @RequestBody AnaliseRequestDTO request) {
         return clienteService.comparacaoEntrePeriodos(request);
     }
 
     //CLIENTES COM QUEDA DE COMPRAS
     @PostMapping("/analises/queda-compras")
-    public List<ComparacaoPeriodosDTO> quedaDeCompras(@RequestBody AnaliseRequestDTO request) {
+    public List<ComparacaoPeriodosDTO> quedaDeCompras(@Valid @RequestBody AnaliseRequestDTO request) {
         return clienteService.quedaDeCompras(request);
-    }     
-    
+    }
+
     //RESUMO DE PERIODOS SELECIONADOS
     @PostMapping("/analises/resumo-periodos")
-    public ResumoPeriodoDTO resumoPeriodo(@RequestBody AnaliseRequestDTO request) {
+    public ResumoPeriodoDTO resumoPeriodo(@Valid @RequestBody AnaliseRequestDTO request) {
         return clienteService.resumoPeriodo(request);
-    }  
-    
+    }
+
 }
-   
+
 

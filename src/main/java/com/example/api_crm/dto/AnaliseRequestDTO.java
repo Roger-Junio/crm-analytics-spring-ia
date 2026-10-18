@@ -1,11 +1,19 @@
 package com.example.api_crm.dto;
 
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotEmpty;
+
 import java.util.List;
 
 public class AnaliseRequestDTO {
 
+   
     private List<Long> arquivos;
+
+    @Min(value = 1, message = "O Limite deve ser maior que zero")
     private Integer limite;  
+
+    @Min(value = 0, message = "O número de dias deve ser maior ou igual a zero")
     private Integer dias;
 
     private List<Long> arquivosPeriodoA; 

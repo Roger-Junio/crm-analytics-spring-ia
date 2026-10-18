@@ -32,8 +32,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class ClienteService {
@@ -42,17 +44,47 @@ public class ClienteService {
     private final HistoricoClienteRepository historicoClienteRepository;
     private final ArquivoClienteRepository arquivoClienteRepository;
 
-    public ClienteService(
-            ClienteRepository clienteRepository,
-            HistoricoClienteRepository historicoClienteRepository,
-            ArquivoClienteRepository arquivoClienteRepository) {
+        public ClienteService(
+                ClienteRepository clienteRepository,
+                HistoricoClienteRepository historicoClienteRepository,
+                ArquivoClienteRepository arquivoClienteRepository) 
+        {
 
-        this.clienteRepository = clienteRepository;
-        this.historicoClienteRepository = historicoClienteRepository;
-        this.arquivoClienteRepository = arquivoClienteRepository;
-    }
-    
-         //IMPORTA ARQUIVO CSV______________________________________________________________________________________________________________________________________________________________________________
+                this.clienteRepository = clienteRepository;
+                this.historicoClienteRepository = historicoClienteRepository;
+                this.arquivoClienteRepository = arquivoClienteRepository;
+        }
+
+        //VALIDAÇÃO__________________________________________________________________________________________________________________________________________________ 
+        private void validarArquivos(List<Long> arquivos) {
+        List<Long> idsInvalidos = new ArrayList<>();
+
+        validarArquivos(arquivos, idsInvalidos);
+
+        if (!idsInvalidos.isEmpty()) {
+                throw new IllegalArgumentException(
+                "Arquivos inválidos: " + idsInvalidos
+                );
+        }
+        }//___________________________________________________________________________________________________________________________________________________________________________
+
+        //LISTA PARA VALIDAR___________________________________________________________________________________________________________________________________________________________ 
+        private void validarArquivos(List<Long> arquivos, List<Long> idsInvalidos) {
+
+                if (arquivos == null || arquivos.isEmpty()) {
+                        throw new IllegalArgumentException(
+                        "Selecione pelo menos um arquivo"
+                        );
+                }
+
+                for (Long id : arquivos) {
+                        if (id == null || !arquivoClienteRepository.existsById(id)) {
+                        idsInvalidos.add(id);
+                        }
+                }
+        }//_______________________________________________________________________________________________________________________________________________________________________
+
+        //IMPORTA ARQUIVO CSV______________________________________________________________________________________________________________________________________________________________________________
         public void importarArquivo(MultipartFile arquivo) throws IOException {      
         //BufferedReader utilizado para leitura do arquivo //InputStreamReader utliza para transforma byst em char para melhor utilizar
         BufferedReader reader = new BufferedReader( new InputStreamReader(arquivo.getInputStream()));    
@@ -196,8 +228,14 @@ public class ClienteService {
           
         public List<HistoricoCliente> dadosArquivoHistoricoCliente(Long id) {
 
-                var resultadoHistoricoId = historicoClienteRepository.findByClienteId(id);
-                return resultadoHistoricoId; 
+        if (!clienteRepository.existsById(id)) {
+                throw new ResponseStatusException(
+                HttpStatus.NOT_FOUND,
+                "Cliente não encontrado"
+                );
+        }
+
+        return historicoClienteRepository.findByClienteId(id);
         }
        
         //Consolida Historico cliente_______________________________________________________________________________________________________________________________________
@@ -229,6 +267,12 @@ public class ClienteService {
                 }
         public ClienteAnaliseDTO consolidarHistorico(List<HistoricoCliente> historicos) {
 
+                if (historicos == null || historicos.isEmpty()) {
+                throw new IllegalArgumentException(
+                        "Não existem históricos para consolidar"
+                );
+                }
+
                 LocalDate hoje = LocalDate.now();
                 LocalDate ultimaCompraConsolidada = null;
 
@@ -248,21 +292,34 @@ public class ClienteService {
 
                                 LocalDate ultimaCompra = historico.getUltimaCompra();
 
-                                if (ultimaCompraConsolidada == null) {
-                                ultimaCompraConsolidada = ultimaCompra;
+                                        if (ultimaCompra != null) {
+                                        if (ultimaCompraConsolidada == null ||
+                                                ultimaCompra.isAfter(ultimaCompraConsolidada)) {
 
-                                } else if (ultimaCompra.isAfter(ultimaCompraConsolidada)) {
-                                ultimaCompraConsolidada = ultimaCompra;
-                                }
+                                                ultimaCompraConsolidada = ultimaCompra;
+                                        }
+                                } 
+                              
                         }
                 
                                 // Calcula o ticket médio considerando todo o histórico
-                                BigDecimal ticketMedioConsolidado =
-                                        valorTotalComprasConsolidada.divide(
-                                                BigDecimal.valueOf(quantidadeComprasConsolidada),
-                                                2,
-                                                RoundingMode.HALF_UP
-                                        );
+                                BigDecimal ticketMedioConsolidado = BigDecimal.ZERO;
+
+                                        if (quantidadeComprasConsolidada > 0) {
+                                        ticketMedioConsolidado =
+                                                valorTotalComprasConsolidada.divide(
+                                                        BigDecimal.valueOf(quantidadeComprasConsolidada),
+                                                        2,
+                                                        RoundingMode.HALF_UP
+                                                );
+                                        }
+
+
+                                if (ultimaCompraConsolidada == null) {
+                                throw new IllegalArgumentException(
+                                        "Não existe data de última compra para consolidar"
+                                );
+                                }
 
                                 // Calcula quantos dias se passaram desde a última compra
                                 Long diasSemComprar =
@@ -271,26 +328,28 @@ public class ClienteService {
                                                 hoje
                                         );
 
-                                String classificacao; 
+                                String classificacao;
                                 if (diasSemComprar <= 30) {
                                         classificacao = "Ativo";
-                                }   else if (diasSemComprar <= 60) {
+                                } else if (diasSemComprar <= 60) {
                                         classificacao = "Atencao";
-                                }   else {
-                                        classificacao = "Em risco"; 
+                                } else {
+                                        classificacao = "Em risco";
                                 }
 
-                        
                                 return new ClienteAnaliseDTO(
                                         historicos.get(0).getCliente().getNome(),
                                         ticketMedioConsolidado,
                                         diasSemComprar,
                                         classificacao
-                                );      
-                }//________________________________________________________________________________________________________________________________________
-        
-        //CLIENTES EM RISCO______________________________________________________________________________________________________________________________________________________
+                                );
+                }
+                //________________________________________________________________________________________________________________________________________
+
+        //CLIENTES EM RISCO___✅______________________________________________________________________________________________________________________________________________________
         public List<ClienteAnaliseDTO> buscarClientesEmRisco(AnaliseRequestDTO request) {
+
+       validarArquivos(request.getArquivos());
 
                 List<ClienteAnaliseDTO> resultados = new ArrayList<>();
                 List<HistoricoCliente> historicos = historicoClienteRepository.findByArquivoIdIn(request.getArquivos());
@@ -308,8 +367,10 @@ public class ClienteService {
                         return resultados;
                 }//_______________________________________________________________________________________________________________________________________________________________________
 
-        //TOP CLIENTES QUE + TEVE NUMEROS DE COMPRAS______________________________________________________________________________________________________________________________
+        //TOP CLIENTES QUE + TEVE NUMEROS DE COMPRAS___✅___________________________________________________________________________________________________________________________
         public List<TopClienteDTO> buscarTopClientes(AnaliseRequestDTO request) {
+                
+           validarArquivos(request.getArquivos());
                                 
                         List<HistoricoCliente> historicos = historicoClienteRepository.findByArquivoIdIn(request.getArquivos());               
                         Map<Long, List<HistoricoCliente>> historicosPorCliente = agruparHistoricosPorCliente(historicos);
@@ -349,8 +410,15 @@ public class ClienteService {
                                                        valorTotalCompras  = valorTotalCompras.add(historico.getValorTotalCompras());
                                                 }
                                                 
-                                                BigDecimal ticketMedio = valorTotalCompras.divide(BigDecimal.valueOf(quantidadeCompras),2,
-                                        RoundingMode.HALF_UP);
+                                        BigDecimal ticketMedio = BigDecimal.ZERO;
+
+                                                if (quantidadeCompras > 0) {
+                                                ticketMedio = valorTotalCompras.divide(
+                                                        BigDecimal.valueOf(quantidadeCompras),
+                                                        2,
+                                                        RoundingMode.HALF_UP
+                                                );
+                                                }
 
                                         Cliente cliente = historicoCliente.get(0).getCliente();
 
@@ -368,10 +436,11 @@ public class ClienteService {
                                         return resultados;                                  
                 }
 
-        //TOP CLIENTES QUE + TEVE VALOR COMPRADO _________________________________________________________________________________________________________________________________
+        //TOP CLIENTES QUE + TEVE VALOR COMPRADO _✅_________________________________________________________________________________________________________________________________
         public List<TopClienteDTO> buscarTopClientesPorValorComprado(AnaliseRequestDTO request) {
 
-                  
+                validarArquivos(request.getArquivos());
+
                         List<HistoricoCliente> historicos = historicoClienteRepository.findByArquivoIdIn(request.getArquivos());               
                         Map<Long, List<HistoricoCliente>> historicosPorCliente = agruparHistoricosPorCliente(historicos);
                         
@@ -412,7 +481,16 @@ public class ClienteService {
                                                        quantidadeCompras += historico.getQuantidadeCompras();
                                                 }
                                                          
-                                        BigDecimal ticketMedio = valorTotalCompras.divide(BigDecimal.valueOf(quantidadeCompras),2,RoundingMode.HALF_UP);
+                                        BigDecimal ticketMedio = BigDecimal.ZERO;
+
+                                                if (quantidadeCompras > 0) {
+                                                ticketMedio = valorTotalCompras.divide(
+                                                        BigDecimal.valueOf(quantidadeCompras),
+                                                        2,
+                                                        RoundingMode.HALF_UP
+                                                );
+                                                }
+                                                                                
                                         Cliente cliente = historicoCliente.get(0).getCliente();
 
                                         TopClienteDTO resultado = new TopClienteDTO(    
@@ -429,8 +507,10 @@ public class ClienteService {
                                         return resultados;                
                 }//________________________________________________________________________________________________________________________________________________________
 
-         //TOP CLIENTES X DIAS SEM COMPRAS________________________________________________________________________________________________________________________________________
+         //TOP CLIENTES X DIAS SEM COMPRAS____✅____________________________________________________________________________________________________________________________________
         public List<ClientesSemCompraDTO> topClientesSemCompraAXDias(AnaliseRequestDTO request) {
+
+                validarArquivos(request.getArquivos());
 
         List<HistoricoCliente> historicos = historicoClienteRepository.findByArquivoIdIn(request.getArquivos());               
         Map<Long, List<HistoricoCliente>> historicosPorCliente = agruparHistoricosPorCliente(historicos);                 
@@ -485,14 +565,14 @@ public class ClienteService {
                                 }
                                 return resultados;                       
                         }//_______________________________________________________________________________________________________________________________________________________________________        
-
         
-        //TOP CLIENTES TICKET MEDIO________________________________________________________________________________________________________________________________
+        //TOP CLIENTES TICKET MEDIO___✅_____________________________________________________________________________________________________________________________
         public List<TopClienteDTO> topClientesTicketMedio(AnaliseRequestDTO request) {
+
+        validarArquivos(request.getArquivos());
 
         List<HistoricoCliente> historicos = historicoClienteRepository.findByArquivoIdIn(request.getArquivos());                                
         Map<Long, List<HistoricoCliente>> historicosPorCliente = agruparHistoricosPorCliente(historicos);                        
-        
         Map<Long, BigDecimal> ticketMedioTodo = new HashMap<>();
 
                 for (Map.Entry<Long, List<HistoricoCliente>> entrada : historicosPorCliente.entrySet()) {
@@ -508,8 +588,15 @@ public class ClienteService {
                                         valorTotalCompras  = valorTotalCompras .add(historico.getValorTotalCompras());
                                         quantidadeCompras += historico.getQuantidadeCompras();                
                                 }
+                              
+                                BigDecimal ticketMedio = BigDecimal.ZERO;
 
-                                BigDecimal ticketMedio = valorTotalCompras .divide(BigDecimal.valueOf(quantidadeCompras),2,RoundingMode.HALF_UP);
+                                        if (quantidadeCompras > 0) {
+                                        ticketMedio = valorTotalCompras.divide(
+                                                BigDecimal.valueOf(quantidadeCompras),
+                                                2,
+                                                RoundingMode.HALF_UP);
+                                        }                               
                                 ticketMedioTodo.put(clienteId, ticketMedio); 
                 }
 
@@ -545,16 +632,27 @@ public class ClienteService {
                                                 valorTotalCompras,
                                                 ticketMedio
                                         );
-
-                                       
+                                   
                                         resultados.add(resultado);  
                         }
                                 return resultados;
         }//______________________________________________________________________________________________________________________________________________________________________               
-
-        //COMPARACAO ENTRE PERIODO/MES_____________________________________________________________________________________________________________________________________________________________________________________________
+        
+        //COMPARACAO ENTRE PERIODO/MES_✅____________________________________________________________________________________________________________________________________________________________________________________________
         public List<ComparacaoPeriodosDTO> comparacaoEntrePeriodos(AnaliseRequestDTO request) {
+           
+        List<Long> idsInvalidos = new ArrayList<>();
 
+                validarArquivos(request.getArquivosPeriodoA(), idsInvalidos);
+                validarArquivos(request.getArquivosPeriodoB(), idsInvalidos);
+
+                        if (!idsInvalidos.isEmpty()) {
+                        throw new IllegalArgumentException(
+                                "Arquivos inválidos: " + idsInvalidos
+                        );
+                        }
+           
+        
                 List<HistoricoCliente> historicosPeriodoA = historicoClienteRepository.findByArquivoIdIn(request.getArquivosPeriodoA());
                 Map<Long, List<HistoricoCliente>> historicoClientePeriodoA = agruparHistoricosPorCliente(historicosPeriodoA);
 
@@ -620,10 +718,10 @@ public class ClienteService {
                 return comparacoes; 
         }//______________________________________________________________________________________________________________________________________________________________
 
-        //CLIENTES COM QUEDA DE COMPRAS______________________________________________________________________________________________________________________________________
-        public List<ComparacaoPeriodosDTO> quedaDeCompras(AnaliseRequestDTO request) {
-        List<ComparacaoPeriodosDTO> comparacoes = comparacaoEntrePeriodos(request); 
+        //CLIENTES COM QUEDA DE COMPRAS____✅_________________________________________________________________________________________________________________________________
+        public List<ComparacaoPeriodosDTO> quedaDeCompras(AnaliseRequestDTO request) {  
 
+        List<ComparacaoPeriodosDTO> comparacoes = comparacaoEntrePeriodos(request); 
         List<ComparacaoPeriodosDTO> somenteQuemTeveQueda = new ArrayList<>();
 
                 for (ComparacaoPeriodosDTO comparacao  : comparacoes) {
@@ -637,10 +735,12 @@ public class ClienteService {
 		        return somenteQuemTeveQueda;
         }//________________________________________________________________________________________________________________________________________________________________________
         
-        //RESUMO DE PERIODOS SELECIONADOS__________________________________________________________________________________________________________________________________________ 
+        //RESUMO DE PERIODOS SELECIONADOS____✅__________________________________________________________________________________________________________________________________________ 
         public ResumoPeriodoDTO resumoPeriodo(AnaliseRequestDTO request) {
-        List<HistoricoCliente> historicoCliente = historicoClienteRepository.findByArquivoIdIn(request.getArquivos()); 
+        
+        validarArquivos(request.getArquivos());
 
+        List<HistoricoCliente> historicoCliente = historicoClienteRepository.findByArquivoIdIn(request.getArquivos()); 
         Set<Long> clientesIds = new HashSet<>();
 
         Integer totalClientes = 0; 
@@ -655,7 +755,6 @@ public class ClienteService {
                                 clientesIds.add(historicoClientes.getCliente().getId());
                                 totalClientes = clientesIds.size();
                         }
-               
 
                         if (totalCompras > 0) {
 
